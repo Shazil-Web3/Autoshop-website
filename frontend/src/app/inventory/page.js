@@ -186,67 +186,40 @@ const InventoryPage = () => {
             </div>
           </div>
 
-          {/* Specifications Grid */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
-              <div className="bg-gray-500 text-white px-3 py-2 rounded text-xs font-medium text-center">
-                Model code
-              </div>
-              <div className="bg-white px-3 py-2 rounded text-xs font-medium text-black text-center">
-                -
-              </div>
-              <div className="bg-gray-500 text-white px-3 py-2 rounded text-xs font-medium text-center">
-                Steering
-              </div>
-              <div className="bg-white px-3 py-2 rounded text-xs font-medium text-black text-center">
-                Left
-              </div>
-              <div className="bg-gray-500 text-white px-3 py-2 rounded text-xs font-medium text-center">
-                Fuel
-              </div>
-              <div className="bg-white px-3 py-2 rounded text-xs font-medium text-black text-center">
-                {vehicle.fuel}
-              </div>
-              <div className="bg-gray-500 text-white px-3 py-2 rounded text-xs font-medium text-center">
-                Seats
-              </div>
-              <div className="bg-white px-3 py-2 rounded text-xs font-medium text-black text-center">
-                {vehicle.seats || "ASK"}
-              </div>
-              <div className="bg-gray-500 text-white px-3 py-2 rounded text-xs font-medium text-center">
-                Engine code
-              </div>
-              <div className="bg-white px-3 py-2 rounded text-xs font-medium text-black text-center">
-                -
-              </div>
-              <div className="bg-gray-500 text-white px-3 py-2 rounded text-xs font-medium text-center">
-                Color
-              </div>
-              <div className="bg-white px-3 py-2 rounded text-xs font-medium text-black text-center">
-                {vehicle.color}
-              </div>
-              <div className="bg-gray-500 text-white px-3 py-2 rounded text-xs font-medium text-center">
-                Drive
-              </div>
-              <div className="bg-white px-3 py-2 rounded text-xs font-medium text-black text-center">
-                {vehicle.drive || "ASK"}
-              </div>
-              <div className="bg-gray-500 text-white px-3 py-2 rounded text-xs font-medium text-center">
-                Doors
-              </div>
-              <div className="bg-white px-3 py-2 rounded text-xs font-medium text-black text-center">
-                {vehicle.doors || "ASK"}
-              </div>
-            </div>
-            <div className="mt-3 text-xs text-black">
-              {vehicle.features ? vehicle.features.slice(0, 6).join(", ") : "Power Steering, AC, Airbag, Leather Seat, Back Camera"} 
-              <Link 
-                href={`/inventory/${type.toLowerCase()}/${vehicle.id}`}
-                className="text-blue-600 cursor-pointer hover:underline ml-1"
-              >
-                and more...
-              </Link>
-            </div>
+          {/* Specifications Table */}
+          <table className="w-full border-collapse">
+            <tbody>
+              <tr>
+                <td className="border border-gray-200 p-1 text-xs bg-gray-100 text-gray-600 font-normal">Model code</td>
+                <td className="border border-gray-200 p-1 text-xs bg-white text-gray-700 font-medium">-</td>
+                <td className="border border-gray-200 p-1 text-xs bg-gray-100 text-gray-600 font-normal">Steering</td>
+                <td className="border border-gray-200 p-1 text-xs bg-white text-gray-700 font-medium">Left</td>
+                <td className="border border-gray-200 p-1 text-xs bg-gray-100 text-gray-600 font-normal">Fuel</td>
+                <td className="border border-gray-200 p-1 text-xs bg-white text-gray-700 font-medium">{vehicle.fuel}</td>
+                <td className="border border-gray-200 p-1 text-xs bg-gray-100 text-gray-600 font-normal">Seats</td>
+                <td className="border border-gray-200 p-1 text-xs bg-white text-gray-700 font-medium">{vehicle.seats || "ASK"}</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-200 p-1 text-xs bg-gray-100 text-gray-600 font-normal">Engine code</td>
+                <td className="border border-gray-200 p-1 text-xs bg-white text-gray-700 font-medium">-</td>
+                <td className="border border-gray-200 p-1 text-xs bg-gray-100 text-gray-600 font-normal">Color</td>
+                <td className="border border-gray-200 p-1 text-xs bg-white text-gray-700 font-medium">{vehicle.color}</td>
+                <td className="border border-gray-200 p-1 text-xs bg-gray-100 text-gray-600 font-normal">Drive</td>
+                <td className="border border-gray-200 p-1 text-xs bg-white text-gray-700 font-medium">{vehicle.drive || "ASK"}</td>
+                <td className="border border-gray-200 p-1 text-xs bg-gray-100 text-gray-600 font-normal">Doors</td>
+                <td className="border border-gray-200 p-1 text-xs bg-white text-gray-700 font-medium">{vehicle.doors || "ASK"}</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <div className="mt-2 text-xs text-gray-600">
+            {vehicle.features ? vehicle.features.slice(0, 6).join(", ") : "Power Steering, AC, Airbag, Leather Seat, Back Camera"} 
+            <Link 
+              href={`/inventory/${type.toLowerCase()}/${vehicle.id}`}
+              className="text-blue-600 cursor-pointer hover:underline ml-1"
+            >
+              and more...
+            </Link>
           </div>
         </div>
 
