@@ -2,8 +2,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
+import { useGlobalState } from '../../context/GlobalStateContext';
 
 const InventoryPage = () => {
+  const { inventory } = useGlobalState();
   const [openSections, setOpenSections] = useState({
     stockCars: true,
     salvageVehicles: false,
@@ -18,168 +20,65 @@ const InventoryPage = () => {
     }));
   };
 
-  // Sample data - in real app, this would come from API
-  const stockCars = [
-    {
-      id: 1,
-      title: "2018 KIA STINGER / SMART KEY, BACK CAMERA",
-      price: "$10,330",
-      totalPrice: "$12,464",
-      image: "/4.jpg",
-      stockNo: "BW803567",
-      mileage: "162,182 km",
-      year: "2018",
-      engine: "3,342cc",
-      transmission: "AT",
-      location: "Korea",
-      color: "Gray",
-      fuel: "Petrol",
-      drive: "4WD",
-      seats: "5",
-      doors: "4",
-      features: ["Power Steering", "A/C", "Airbag", "Leather Seat", "Back Camera", "Alloy Wheels", "Sun Roof", "Radio", "Push Start", "Power Seat"]
-    },
-    {
-      id: 2,
-      title: "2018 KIA STINGER / SUN ROOF, SMART KEY, BACK CAMERA",
-      price: "$10,771",
-      totalPrice: "$12,905",
-      image: "/5.jpeg",
-      stockNo: "BX910689",
-      mileage: "202,533 km",
-      year: "2018",
-      engine: "3,342cc",
-      transmission: "AT",
-      location: "Korea",
-      color: "Black",
-      fuel: "Petrol",
-      drive: "2WD",
-      seats: "5",
-      doors: "4",
-      features: ["Power Steering", "A/C", "Airbag", "Leather Seat", "Back Camera", "Alloy Wheels", "Sun Roof", "Radio", "Push Start", "Power Seat"]
-    }
-  ];
-
-  const salvageVehicles = [
-    {
-      id: 1,
-      title: "2015 TOYOTA CAMRY SALVAGE",
-      price: "$3,500",
-      totalPrice: "$5,200",
-      image: "/6.jpeg",
-      stockNo: "SV001",
-      mileage: "85,000 km",
-      year: "2015",
-      engine: "2,500cc",
-      transmission: "AT",
-      location: "Japan",
-      color: "Silver",
-      fuel: "Petrol",
-      drive: "2WD",
-      seats: "5",
-      doors: "4",
-      condition: "Front end damage, engine intact"
-    }
-  ];
-
-  const constructionMachinery = [
-    {
-      id: 1,
-      title: "2019 CATERPILLAR EXCAVATOR 320",
-      price: "$45,000",
-      totalPrice: "$52,000",
-      image: "/7.jpeg",
-      stockNo: "CM001",
-      mileage: "2,500 hours",
-      year: "2019",
-      engine: "6,000cc",
-      transmission: "Hydraulic",
-      location: "USA",
-      color: "Yellow",
-      fuel: "Diesel",
-      capacity: "20 tons",
-      condition: "Excellent working condition"
-    }
-  ];
-
-  const bikes = [
-    {
-      id: 1,
-      title: "2020 HONDA CBR 600RR",
-      price: "$12,000",
-      totalPrice: "$14,500",
-      image: "/4.jpg",
-      stockNo: "BK001",
-      mileage: "8,500 km",
-      year: "2020",
-      engine: "599cc",
-      transmission: "6-speed",
-      location: "Japan",
-      color: "Red",
-      fuel: "Petrol",
-      condition: "Mint condition, low mileage"
-    }
-  ];
-
   const VehicleCard = ({ vehicle, type }) => (
-    <div className="bg-white rounded-lg shadow-md p-6 mb-4">
-      <div className="flex flex-col lg:flex-row gap-6">
+    <div className="bg-white rounded-lg shadow-md p-8 mb-6">
+      <div className="flex flex-col lg:flex-row gap-8">
         {/* Car Image Section */}
-        <div className="relative w-full lg:w-48 flex-shrink-0">
+        <div className="relative w-full lg:w-64 flex-shrink-0">
           <div className="relative">
             <img 
               src={vehicle.image} 
               alt={vehicle.title}
-              className="w-full h-36 object-cover rounded-lg"
+              className="w-full h-48 object-cover rounded-lg"
               onError={(e) => {
                 e.target.src = '/images/placeholder-vehicle.jpg';
               }}
             />
             {/* Heart Icon */}
-            <button className="absolute top-2 left-2 text-gray-400 hover:text-red-500 transition-colors">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <button className="absolute top-3 left-3 text-gray-400 hover:text-red-500 transition-colors">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
               </svg>
             </button>
             {/* Badge */}
-            <span className="absolute top-2 right-2 bg-blue-600 text-white px-2 py-1 text-xs rounded font-medium">
+            <span className="absolute top-3 right-3 bg-blue-600 text-white px-3 py-1 text-sm rounded font-medium">
               {vehicle.year}
             </span>
           </div>
-          <div className="mt-3 text-sm">
+          <div className="mt-4 text-base">
             <div className="font-medium text-black">Ref No. {vehicle.stockNo}</div>
-            <div className="text-xs text-black mt-1">
-              <div className="bg-orange-500 text-white px-2 py-1 rounded text-xs inline-block">{type.toUpperCase()}</div>
+            <div className="text-sm text-black mt-2">
+              <div className="bg-orange-500 text-white px-3 py-1 rounded text-sm inline-block">{type.toUpperCase()}</div>
             </div>
           </div>
         </div>
 
         {/* Details Section */}
         <div className="flex-1">
-          <div className="mb-4">
-            <h3 className="text-blue-600 text-lg font-medium hover:underline cursor-pointer mb-3">
+          <div className="mb-6">
+            <h3 className="text-blue-600 text-xl font-medium hover:underline cursor-pointer mb-4">
               {vehicle.title}
             </h3>
-            <div className="flex flex-wrap gap-6 text-sm">
+            <div className="flex flex-wrap gap-8 text-base">
               <div>
-                <span className="text-black text-xs font-medium">Mileage</span>
-                <div className="font-bold text-base text-black">{vehicle.mileage}</div>
+                <span className="text-black text-sm font-medium">Mileage</span>
+                <div className="font-bold text-lg text-black">{vehicle.mileage}</div>
               </div>
               <div>
-                <span className="text-black text-xs font-medium">Year</span>
-                <div className="font-medium text-black">{vehicle.year}</div>
+                <span className="text-black text-sm font-medium">Year</span>
+                <div className="font-medium text-lg text-black">{vehicle.year}</div>
               </div>
               <div>
-                <span className="text-black text-xs font-medium">Engine</span>
-                <div className="font-medium text-black">{vehicle.engine}</div>
+                <span className="text-black text-sm font-medium">Engine</span>
+                <div className="font-medium text-lg text-black">{vehicle.engine}</div>
               </div>
               <div>
-                <span className="text-black text-xs font-medium">Trans</span>
-                <div className="font-medium text-black">{vehicle.transmission}</div>
+                <span className="text-black text-sm font-medium">Trans</span>
+                <div className="font-medium text-lg text-black">{vehicle.transmission}</div>
               </div>
               <div>
-                <span className="text-black text-xs font-medium">Location</span>
-                <div className="font-medium text-black flex items-center gap-1">
+                <span className="text-black text-sm font-medium">Location</span>
+                <div className="font-medium text-lg text-black flex items-center gap-2">
                   <span>🇰🇷</span> {vehicle.location}
                 </div>
               </div>
@@ -190,29 +89,29 @@ const InventoryPage = () => {
           <table className="w-full border-collapse">
             <tbody>
               <tr>
-                <td className="border border-gray-200 p-1 text-xs bg-gray-100 text-gray-600 font-normal">Model code</td>
-                <td className="border border-gray-200 p-1 text-xs bg-white text-gray-700 font-medium">-</td>
-                <td className="border border-gray-200 p-1 text-xs bg-gray-100 text-gray-600 font-normal">Steering</td>
-                <td className="border border-gray-200 p-1 text-xs bg-white text-gray-700 font-medium">Left</td>
-                <td className="border border-gray-200 p-1 text-xs bg-gray-100 text-gray-600 font-normal">Fuel</td>
-                <td className="border border-gray-200 p-1 text-xs bg-white text-gray-700 font-medium">{vehicle.fuel}</td>
-                <td className="border border-gray-200 p-1 text-xs bg-gray-100 text-gray-600 font-normal">Seats</td>
-                <td className="border border-gray-200 p-1 text-xs bg-white text-gray-700 font-medium">{vehicle.seats || "ASK"}</td>
+                <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Model code</td>
+                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium">-</td>
+                <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Steering</td>
+                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium">Left</td>
+                <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Fuel</td>
+                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium">{vehicle.fuel}</td>
+                <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Seats</td>
+                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium">{vehicle.seats || "ASK"}</td>
               </tr>
               <tr>
-                <td className="border border-gray-200 p-1 text-xs bg-gray-100 text-gray-600 font-normal">Engine code</td>
-                <td className="border border-gray-200 p-1 text-xs bg-white text-gray-700 font-medium">-</td>
-                <td className="border border-gray-200 p-1 text-xs bg-gray-100 text-gray-600 font-normal">Color</td>
-                <td className="border border-gray-200 p-1 text-xs bg-white text-gray-700 font-medium">{vehicle.color}</td>
-                <td className="border border-gray-200 p-1 text-xs bg-gray-100 text-gray-600 font-normal">Drive</td>
-                <td className="border border-gray-200 p-1 text-xs bg-white text-gray-700 font-medium">{vehicle.drive || "ASK"}</td>
-                <td className="border border-gray-200 p-1 text-xs bg-gray-100 text-gray-600 font-normal">Doors</td>
-                <td className="border border-gray-200 p-1 text-xs bg-white text-gray-700 font-medium">{vehicle.doors || "ASK"}</td>
+                <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Engine code</td>
+                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium">-</td>
+                <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Color</td>
+                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium">{vehicle.color}</td>
+                <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Drive</td>
+                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium">{vehicle.drive || "ASK"}</td>
+                <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Doors</td>
+                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium">{vehicle.doors || "ASK"}</td>
               </tr>
             </tbody>
           </table>
           
-          <div className="mt-2 text-xs text-gray-600">
+          <div className="mt-3 text-sm text-gray-600">
             {vehicle.features ? vehicle.features.slice(0, 6).join(", ") : "Power Steering, AC, Airbag, Leather Seat, Back Camera"} 
             <Link 
               href={`/inventory/${type.toLowerCase()}/${vehicle.id}`}
@@ -224,24 +123,24 @@ const InventoryPage = () => {
         </div>
 
         {/* Pricing Section */}
-        <div className="w-full lg:w-48 flex-shrink-0 text-right">
-          <div className="mb-3">
-            <span className="text-black text-xs font-medium">Price</span>
-            <div className="text-red-600 text-xl font-bold">{vehicle.price}</div>
+        <div className="w-full lg:w-56 flex-shrink-0 text-right">
+          <div className="mb-4">
+            <span className="text-black text-sm font-medium">Price</span>
+            <div className="text-red-600 text-2xl font-bold">{vehicle.price}</div>
             {vehicle.originalPrice && (
-              <div className="text-xs text-gray-400 line-through">{vehicle.originalPrice}</div>
+              <div className="text-sm text-gray-400 line-through">{vehicle.originalPrice}</div>
             )}
           </div>
-          <div className="mb-4">
-            <span className="text-black text-xs font-medium">Total Price</span>
-            <div className="text-red-600 text-base font-semibold">{vehicle.totalPrice}</div>
-            <div className="text-xs text-black">CIF to Bahrain (RO/RO)</div>
+          <div className="mb-6">
+            <span className="text-black text-sm font-medium">Total Price</span>
+            <div className="text-red-600 text-lg font-semibold">{vehicle.totalPrice}</div>
+            <div className="text-sm text-black">CIF to Bahrain (RO/RO)</div>
           </div>
           <Link 
             href={`/inventory/${type.toLowerCase()}/${vehicle.id}`}
-            className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded text-sm font-medium w-full inline-block text-center transition-colors"
+            className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded text-base font-medium w-full inline-block text-center transition-colors"
           >
-            <svg className="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+            <svg className="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
               <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
               <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
             </svg>
@@ -254,20 +153,20 @@ const InventoryPage = () => {
 
   const SectionHeader = ({ title, count, isOpen, onToggle, icon }) => (
     <div 
-      className="flex items-center justify-between p-4 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200 transition-colors"
+      className="flex items-center justify-between p-6 bg-gray-100 rounded-lg cursor-pointer hover:bg-gray-200 transition-colors"
       onClick={onToggle}
     >
-      <div className="flex items-center space-x-3">
-        <span className="text-2xl">{icon}</span>
-        <h2 className="text-xl font-bold text-black">{title}</h2>
-        <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm font-medium">
+      <div className="flex items-center space-x-4">
+        <span className="text-3xl">{icon}</span>
+        <h2 className="text-2xl font-bold text-black">{title}</h2>
+        <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-base font-medium">
           {count}
         </span>
       </div>
       {isOpen ? (
-        <ChevronUpIcon className="h-6 w-6 text-black" />
+        <ChevronUpIcon className="h-7 w-7 text-black" />
       ) : (
-        <ChevronDownIcon className="h-6 w-6 text-black" />
+        <ChevronDownIcon className="h-7 w-7 text-black" />
       )}
     </div>
   );
@@ -276,26 +175,39 @@ const InventoryPage = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-3xl font-bold text-black">Inventory</h1>
-          <p className="text-black mt-2">Browse our extensive collection of vehicles, machinery, and parts</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold text-black">Inventory</h1>
+              <p className="text-black mt-3 text-lg">Browse our extensive collection of vehicles, machinery, and parts</p>
+            </div>
+            <Link 
+              href="/admin"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-base font-medium transition-colors flex items-center space-x-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+              <span>Add Product</span>
+            </Link>
+          </div>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-6">
+        <div className="space-y-8">
           {/* Stock Cars Section */}
           <div>
             <SectionHeader
               title="Stock Cars"
-              count={stockCars.length}
+              count={inventory.stockCars.length}
               icon="🚗"
               isOpen={openSections.stockCars}
               onToggle={() => toggleSection('stockCars')}
             />
             {openSections.stockCars && (
-              <div className="mt-4 space-y-6">
-                {stockCars.map((car) => (
+              <div className="mt-6 space-y-8">
+                {inventory.stockCars.map((car) => (
                   <VehicleCard key={car.id} vehicle={car} type="Stock Car" />
                 ))}
               </div>
@@ -306,14 +218,14 @@ const InventoryPage = () => {
           <div>
             <SectionHeader
               title="Salvage Vehicles"
-              count={salvageVehicles.length}
+              count={inventory.salvageVehicles.length}
               icon="🚛"
               isOpen={openSections.salvageVehicles}
               onToggle={() => toggleSection('salvageVehicles')}
             />
             {openSections.salvageVehicles && (
-              <div className="mt-4 space-y-6">
-                {salvageVehicles.map((vehicle) => (
+              <div className="mt-6 space-y-8">
+                {inventory.salvageVehicles.map((vehicle) => (
                   <VehicleCard key={vehicle.id} vehicle={vehicle} type="Salvage" />
                 ))}
               </div>
@@ -324,14 +236,14 @@ const InventoryPage = () => {
           <div>
             <SectionHeader
               title="Construction Machinery"
-              count={constructionMachinery.length}
+              count={inventory.constructionMachinery.length}
               icon="🏗️"
               isOpen={openSections.constructionMachinery}
               onToggle={() => toggleSection('constructionMachinery')}
             />
             {openSections.constructionMachinery && (
-              <div className="mt-4 space-y-6">
-                {constructionMachinery.map((machinery) => (
+              <div className="mt-6 space-y-8">
+                {inventory.constructionMachinery.map((machinery) => (
                   <VehicleCard key={machinery.id} vehicle={machinery} type="Machinery" />
                 ))}
               </div>
@@ -342,14 +254,14 @@ const InventoryPage = () => {
           <div>
             <SectionHeader
               title="Motorcycles"
-              count={bikes.length}
+              count={inventory.bikes.length}
               icon="🏍️"
               isOpen={openSections.bikes}
               onToggle={() => toggleSection('bikes')}
             />
             {openSections.bikes && (
-              <div className="mt-4 space-y-6">
-                {bikes.map((bike) => (
+              <div className="mt-6 space-y-8">
+                {inventory.bikes.map((bike) => (
                   <VehicleCard key={bike.id} vehicle={bike} type="Motorcycle" />
                 ))}
               </div>

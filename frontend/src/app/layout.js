@@ -1,6 +1,7 @@
 import "./globals.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { GlobalStateProvider } from "../context/GlobalStateContext";
 
 export const metadata = {
   title: "Autexline - Automotive Sourcing & Export",
@@ -11,11 +12,13 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="font-sans">
-        <Header />
-        <main>
-          {children}
-        </main>
-        <Footer />
+        <GlobalStateProvider>
+          <Header />
+          <main>
+            {children}
+          </main>
+          <Footer />
+        </GlobalStateProvider>
       </body>
     </html>
   );
