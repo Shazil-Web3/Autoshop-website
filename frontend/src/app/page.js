@@ -188,7 +188,7 @@ export default function Home() {
             </div>
 
             {/* Middle Section: Flash Sale countdown */}
-            <div className="relative w-[520px] h-64 bg-gray-200 rounded-lg overflow-hidden shadow-lg">
+            <div className="relative w-[520px] h-64  rounded-lg overflow-hidden ">
               <div className="absolute inset-0 bg-gray-100"></div>
               <Image
                 src="/1.jpg"
@@ -196,7 +196,7 @@ export default function Home() {
                 fill
                 className="object-cover opacity-60"
               />
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-24 bg-white/90 backdrop-blur-sm border-2 border-red-500 text-red-600 flex flex-col justify-center items-center text-center p-3 rounded-lg shadow-lg">
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-24 bg-gray-00 backdrop-blur-sm border-2 border-white-500 text-white-600 flex flex-col justify-center items-center text-center p-3 rounded-lg shadow-lg">
                 <div className="text-2xl font-bold">FLASH SALE</div>
                 <div className="text-3xl font-bold mt-1">
                   {countdown.days.toString().padStart(2, '0')}:{countdown.hours.toString().padStart(2, '0')}:{countdown.minutes.toString().padStart(2, '0')}:{countdown.seconds.toString().padStart(2, '0')}
