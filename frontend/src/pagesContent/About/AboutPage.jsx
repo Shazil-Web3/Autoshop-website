@@ -390,9 +390,12 @@ const AboutPage = () => {
                 <p className="text-gray-600 mb-6">
                   Join thousands of satisfied customers worldwide who trust Autexline for their automotive needs.
                 </p>
-                <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition duration-300">
+                <a 
+                  href="/" 
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition duration-300 inline-block"
+                >
                   Get Started Today
-                </button>
+                </a>
               </div>
             </div>
           </div>

@@ -157,12 +157,18 @@ const AuctionsPage = () => {
             Join thousands of satisfied customers who have successfully purchased vehicles through our auction platform.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white text-blue-600 font-semibold py-3 px-8 rounded-lg hover:bg-gray-100 transition duration-300">
+            <a 
+              href="/" 
+              className="bg-white text-blue-600 font-semibold py-3 px-8 rounded-lg hover:bg-gray-100 transition duration-300"
+            >
               Browse Inventory
-            </button>
-            <button className="border-2 border-white text-white font-semibold py-3 px-8 rounded-lg hover:bg-white hover:text-blue-600 transition duration-300">
+            </a>
+            <a 
+              href="/inquiry" 
+              className="border-2 border-white text-white font-semibold py-3 px-8 rounded-lg hover:bg-white hover:text-blue-600 transition duration-300"
+            >
               Contact Us
-            </button>
+            </a>
           </div>
         </div>
       </section>

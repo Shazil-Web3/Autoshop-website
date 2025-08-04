@@ -217,10 +217,10 @@ const FilterModal = ({ isOpen, onClose }) => {
         <div className="bg-white bg-opacity-95 backdrop-blur-md rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border border-gray-200">
           <div className="p-6">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-800">Advanced Vehicle Filter</h2>
+              <h2 className="text-2xl font-bold text-black">Advanced Vehicle Filter</h2>
               <button
                 onClick={onClose}
-                className="text-gray-500 hover:text-gray-700 text-2xl font-bold transition-colors"
+                className="text-black hover:text-gray-700 text-2xl font-bold transition-colors"
               >
                 ×
               </button>
@@ -229,15 +229,15 @@ const FilterModal = ({ isOpen, onClose }) => {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Basic Information */}
               <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-4 text-gray-800">Basic Information</h3>
+                <h3 className="text-lg font-semibold mb-4 text-black">Basic Information</h3>
                 <div className="grid md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Make</label>
+                    <label className="block text-sm font-medium text-black mb-2">Make</label>
                     <select
                       name="make"
                       value={filters.make}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
                     >
                       <option value="">Select Make</option>
                       {makes.map((make, index) => (
@@ -247,25 +247,25 @@ const FilterModal = ({ isOpen, onClose }) => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Model</label>
+                    <label className="block text-sm font-medium text-black mb-2">Model</label>
                     <input
                       type="text"
                       name="model"
                       value={filters.model}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
                       placeholder="Enter model"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Model Code</label>
+                    <label className="block text-sm font-medium text-black mb-2">Model Code</label>
                     <input
                       type="text"
                       name="modelCode"
                       value={filters.modelCode}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
                       placeholder="Enter model code"
                     />
                   </div>
@@ -274,36 +274,36 @@ const FilterModal = ({ isOpen, onClose }) => {
 
               {/* Price and Year Range */}
               <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-4 text-gray-800">Price & Year Range</h3>
+                <h3 className="text-lg font-semibold mb-4 text-black">Price & Year Range</h3>
                 <div className="grid md:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Price From ($)</label>
+                    <label className="block text-sm font-medium text-black mb-2">Price From ($)</label>
                     <input
                       type="number"
                       name="priceFrom"
                       value={filters.priceFrom}
                       onChange={handleInputChange}
                       min="0"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
                       placeholder="Min price"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Price To ($)</label>
+                    <label className="block text-sm font-medium text-black mb-2">Price To ($)</label>
                     <input
                       type="number"
                       name="priceTo"
                       value={filters.priceTo}
                       onChange={handleInputChange}
                       min="0"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
                       placeholder="Max price"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Year From</label>
+                    <label className="block text-sm font-medium text-black mb-2">Year From</label>
                     <input
                       type="number"
                       name="yearFrom"
@@ -311,13 +311,13 @@ const FilterModal = ({ isOpen, onClose }) => {
                       onChange={handleInputChange}
                       min="1980"
                       max="2025"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
                       placeholder="1980"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Year To</label>
+                    <label className="block text-sm font-medium text-black mb-2">Year To</label>
                     <input
                       type="number"
                       name="yearTo"
@@ -325,7 +325,7 @@ const FilterModal = ({ isOpen, onClose }) => {
                       onChange={handleInputChange}
                       min="1980"
                       max="2025"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
                       placeholder="2025"
                     />
                   </div>
@@ -334,56 +334,56 @@ const FilterModal = ({ isOpen, onClose }) => {
 
               {/* Mileage and Engine */}
               <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-4 text-gray-800">Mileage & Engine</h3>
+                <h3 className="text-lg font-semibold mb-4 text-black">Mileage & Engine</h3>
                 <div className="grid md:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Mileage From (km)</label>
+                    <label className="block text-sm font-medium text-black mb-2">Mileage From (km)</label>
                     <input
                       type="number"
                       name="mileageFrom"
                       value={filters.mileageFrom}
                       onChange={handleInputChange}
                       min="0"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
                       placeholder="Min mileage"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Mileage To (km)</label>
+                    <label className="block text-sm font-medium text-black mb-2">Mileage To (km)</label>
                     <input
                       type="number"
                       name="mileageTo"
                       value={filters.mileageTo}
                       onChange={handleInputChange}
                       min="0"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
                       placeholder="Max mileage"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Engine From (cc)</label>
+                    <label className="block text-sm font-medium text-black mb-2">Engine From (cc)</label>
                     <input
                       type="number"
                       name="engineFrom"
                       value={filters.engineFrom}
                       onChange={handleInputChange}
                       min="0"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
                       placeholder="Min engine cc"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Engine To (cc)</label>
+                    <label className="block text-sm font-medium text-black mb-2">Engine To (cc)</label>
                     <input
                       type="number"
                       name="engineTo"
                       value={filters.engineTo}
                       onChange={handleInputChange}
                       min="0"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
                       placeholder="Max engine cc"
                     />
                   </div>
@@ -392,15 +392,15 @@ const FilterModal = ({ isOpen, onClose }) => {
 
               {/* Vehicle Specifications */}
               <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-4 text-gray-800">Vehicle Specifications</h3>
+                <h3 className="text-lg font-semibold mb-4 text-black">Vehicle Specifications</h3>
                 <div className="grid md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Fuel Type</label>
+                    <label className="block text-sm font-medium text-black mb-2">Fuel Type</label>
                     <select
                       name="fuelType"
                       value={filters.fuelType}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
                     >
                       <option value="">Select Fuel Type</option>
                       {fuelTypes.map((fuel, index) => (
@@ -410,12 +410,12 @@ const FilterModal = ({ isOpen, onClose }) => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Transmission</label>
+                    <label className="block text-sm font-medium text-black mb-2">Transmission</label>
                     <select
                       name="transmission"
                       value={filters.transmission}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
                     >
                       <option value="">Select Transmission</option>
                       {transmissions.map((trans, index) => (
@@ -425,12 +425,12 @@ const FilterModal = ({ isOpen, onClose }) => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Body Type</label>
+                    <label className="block text-sm font-medium text-black mb-2">Body Type</label>
                     <select
                       name="bodyType"
                       value={filters.bodyType}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
                     >
                       <option value="">Select Body Type</option>
                       {bodyTypes.map((type, index) => (
@@ -440,12 +440,12 @@ const FilterModal = ({ isOpen, onClose }) => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Steering</label>
+                    <label className="block text-sm font-medium text-black mb-2">Steering</label>
                     <select
                       name="steering"
                       value={filters.steering}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
                     >
                       <option value="">Select Steering</option>
                       {steeringOptions.map((option, index) => (
@@ -455,12 +455,12 @@ const FilterModal = ({ isOpen, onClose }) => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Drivetrain</label>
+                    <label className="block text-sm font-medium text-black mb-2">Drivetrain</label>
                     <select
                       name="drivetrain"
                       value={filters.drivetrain}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
                     >
                       <option value="">Select Drivetrain</option>
                       {drivetrainOptions.map((option, index) => (
@@ -470,12 +470,12 @@ const FilterModal = ({ isOpen, onClose }) => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Color</label>
+                    <label className="block text-sm font-medium text-black mb-2">Color</label>
                     <select
                       name="color"
                       value={filters.color}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
                     >
                       <option value="">Select Color</option>
                       {colors.map((color, index) => (
@@ -488,15 +488,15 @@ const FilterModal = ({ isOpen, onClose }) => {
 
               {/* Stock Information */}
               <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-4 text-gray-800">Stock Information</h3>
+                <h3 className="text-lg font-semibold mb-4 text-black">Stock Information</h3>
                 <div className="grid md:grid-cols-4 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Stock Country</label>
+                    <label className="block text-sm font-medium text-black mb-2">Stock Country</label>
                     <select
                       name="stockCountry"
                       value={filters.stockCountry}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
                     >
                       <option value="">Select Country</option>
                       {stockCountries.map((country, index) => (
@@ -506,12 +506,12 @@ const FilterModal = ({ isOpen, onClose }) => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Stock Location</label>
+                    <label className="block text-sm font-medium text-black mb-2">Stock Location</label>
                     <select
                       name="stockLocation"
                       value={filters.stockLocation}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
                     >
                       <option value="">Select Location</option>
                       {stockLocations.map((location, index) => (
@@ -521,27 +521,27 @@ const FilterModal = ({ isOpen, onClose }) => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Capacity From</label>
+                    <label className="block text-sm font-medium text-black mb-2">Capacity From</label>
                     <input
                       type="number"
                       name="capacityFrom"
                       value={filters.capacityFrom}
                       onChange={handleInputChange}
                       min="0"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
                       placeholder="Min capacity"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Capacity To</label>
+                    <label className="block text-sm font-medium text-black mb-2">Capacity To</label>
                     <input
                       type="number"
                       name="capacityTo"
                       value={filters.capacityTo}
                       onChange={handleInputChange}
                       min="0"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
                       placeholder="Max capacity"
                     />
                   </div>
@@ -550,15 +550,15 @@ const FilterModal = ({ isOpen, onClose }) => {
 
               {/* Specialized Types */}
               <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-4 text-gray-800">Specialized Types</h3>
+                <h3 className="text-lg font-semibold mb-4 text-black">Specialized Types</h3>
                 <div className="grid md:grid-cols-3 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Sub Body Type</label>
+                    <label className="block text-sm font-medium text-black mb-2">Sub Body Type</label>
                     <select
                       name="subBodyType"
                       value={filters.subBodyType}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
                     >
                       <option value="">Select Sub Body Type</option>
                       {subBodyTypes.map((type, index) => (
@@ -568,12 +568,12 @@ const FilterModal = ({ isOpen, onClose }) => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Machinery Type</label>
+                    <label className="block text-sm font-medium text-black mb-2">Machinery Type</label>
                     <select
                       name="machineryType"
                       value={filters.machineryType}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
                     >
                       <option value="">Select Machinery Type</option>
                       {machineryTypes.map((type, index) => (
@@ -583,12 +583,12 @@ const FilterModal = ({ isOpen, onClose }) => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Bike Type</label>
+                    <label className="block text-sm font-medium text-black mb-2">Bike Type</label>
                     <select
                       name="bikeType"
                       value={filters.bikeType}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
                     >
                       <option value="">Select Bike Type</option>
                       {bikeTypes.map((type, index) => (
@@ -601,7 +601,7 @@ const FilterModal = ({ isOpen, onClose }) => {
 
               {/* Features */}
               <div className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-4 text-gray-800">Features</h3>
+                <h3 className="text-lg font-semibold mb-4 text-black">Features</h3>
                 <div className="grid md:grid-cols-4 gap-3">
                   {[
                     { name: 'cdPlayer', label: 'CD Player' },
@@ -649,7 +649,7 @@ const FilterModal = ({ isOpen, onClose }) => {
                         onChange={handleInputChange}
                         className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                       />
-                      <label htmlFor={feature.name} className="ml-2 text-sm text-gray-700">
+                      <label htmlFor={feature.name} className="ml-2 text-sm text-black">
                         {feature.label}
                       </label>
                     </div>

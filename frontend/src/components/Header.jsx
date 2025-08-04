@@ -1,7 +1,12 @@
-import React from 'react';
+"use client";
+import React, { useState } from 'react';
 import { Search, Phone, ShoppingCart, Heart, User, Menu } from 'lucide-react';
+import Link from 'next/link';
+import FilterModal from './FilterModal';
 
 const Header = () => {
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+
   return (
     <div className="w-full">
       {/* Top promotional banner */}
@@ -19,11 +24,11 @@ const Header = () => {
           <div className="flex items-center justify-between py-4">
             {/* Logo */}
             <div className="flex items-center">
-              <div className="text-2xl font-bold">
+              <Link href="/" className="text-2xl font-bold hover:opacity-80 transition-opacity">
                 <span className="text-red-600">AUTEX</span>
                 <span className="text-green-600">LINE</span>
                 <span className="text-xs text-gray-500 ml-1">.PK</span>
-              </div>
+              </Link>
             </div>
 
             {/* Search bar */}
@@ -32,7 +37,7 @@ const Header = () => {
                 <input
                   type="text"
                   placeholder="Search products..."
-                  className="w-full px-4 py-2.5 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2.5 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-black"
                 />
                 <button className="absolute right-3 top-1/2 transform -translate-y-1/2 text-black hover:text-gray-600">
                   <Search className="w-5 h-5" />
@@ -64,7 +69,7 @@ const Header = () => {
                 </a>
               </div>
 
-              {/* User actions */}
+            
               
             </div>
           </div>
@@ -73,7 +78,10 @@ const Header = () => {
           <div className="border-t border-gray-200">
             <div className="flex items-center justify-between py-3">
               {/* Shop by Category button */}
-              <button className="bg-red-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-red-700 transition-colors">
+              <button 
+                onClick={() => setIsFilterModalOpen(true)}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-red-700 transition-colors"
+              >
                 <Menu className="w-4 h-4" />
                 <span className="font-medium">Shop by Category</span>
               </button>
@@ -83,7 +91,7 @@ const Header = () => {
                 <a href="/" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">HOME</a>
                 <a href="/about" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">ABOUT</a>
                 <a href="/inventory" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">INVENTORY</a>
-                <a href="/auto-parts" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">AUTO PARTS</a>
+                <a href="/inventory/parts" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">AUTO PARTS</a>
                 <a href="/auctions" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">AUCTIONS</a>
                 <a href="/buy-from-stock" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">HOW TO BUY</a>
                 <a href="/inquiry" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">INQUIRY</a>
@@ -92,6 +100,12 @@ const Header = () => {
           </div>
         </div>
       </header>
+
+      {/* Filter Modal */}
+      <FilterModal 
+        isOpen={isFilterModalOpen} 
+        onClose={() => setIsFilterModalOpen(false)} 
+      />
     </div>
   );
 };

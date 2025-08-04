@@ -214,13 +214,13 @@ const BuyFromStockPage = () => {
           <p className="text-xl mb-8 max-w-2xl mx-auto">
             Browse our extensive inventory and find the perfect vehicle for your needs.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-white text-green-600 font-semibold py-3 px-8 rounded-lg hover:bg-gray-100 transition duration-300">
-              View Stock
-            </button>
-            <button className="border-2 border-white text-white font-semibold py-3 px-8 rounded-lg hover:bg-white hover:text-green-600 transition duration-300">
+          <div className="flex justify-center">
+            <a 
+              href="/inquiry" 
+              className="border-2 border-white text-white font-semibold py-3 px-8 rounded-lg hover:bg-white hover:text-green-600 transition duration-300"
+            >
               Contact Agent
-            </button>
+            </a>
           </div>
         </div>
       </section>

@@ -55,7 +55,7 @@ const PartsPage = () => {
       category: "Engine & Components",
       price: "$15.99",
       stock: "In Stock",
-      image: "/images/parts/oil-filter.jpg"
+      image: "/4.jpg"
     },
     {
       id: 2,
@@ -66,7 +66,7 @@ const PartsPage = () => {
       category: "Brake",
       price: "$45.50",
       stock: "In Stock",
-      image: "/images/parts/brake-pads.jpg"
+      image: "/5.jpeg"
     },
     {
       id: 3,
@@ -77,7 +77,7 @@ const PartsPage = () => {
       category: "Lightings",
       price: "$89.99",
       stock: "Limited Stock",
-      image: "/images/parts/headlight.jpg"
+      image: "/6.jpeg"
     }
   ];
 
@@ -110,7 +110,7 @@ const PartsPage = () => {
   const CategoryCard = ({ category }) => (
     <div className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow cursor-pointer">
       <div className="flex justify-between items-center">
-        <h3 className="font-semibold text-gray-800">{category.name}</h3>
+        <h3 className="font-semibold text-black">{category.name}</h3>
         <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm font-medium">
           {category.count.toLocaleString()}
         </span>
@@ -137,8 +137,8 @@ const PartsPage = () => {
       </div>
       
       <div className="p-4">
-        <h3 className="font-semibold text-gray-800 mb-2 line-clamp-2">{part.name}</h3>
-        <div className="text-sm text-gray-600 mb-2">
+        <h3 className="font-semibold text-black mb-2 line-clamp-2">{part.name}</h3>
+        <div className="text-sm text-black mb-2">
           <div>{part.make} {part.model} ({part.year})</div>
           <div>{part.category}</div>
         </div>
@@ -160,8 +160,8 @@ const PartsPage = () => {
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">Auto Parts</h1>
-          <p className="text-gray-600 mt-2">Search for new and used auto parts by make, model, and category</p>
+          <h1 className="text-3xl font-bold text-black">Auto Parts</h1>
+          <p className="text-black mt-2">Search for new and used auto parts by make, model, and category</p>
         </div>
       </div>
 
@@ -169,58 +169,58 @@ const PartsPage = () => {
         {/* Search Section */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
           <div className="flex items-center mb-4">
-            <FunnelIcon className="h-6 w-6 text-gray-600 mr-2" />
-            <h2 className="text-xl font-bold text-gray-900">Parts Search Tool</h2>
+            <FunnelIcon className="h-6 w-6 text-black mr-2" />
+            <h2 className="text-xl font-bold text-black">Parts Search Tool</h2>
           </div>
           
           <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Select Maker</label>
+              <label className="block text-sm font-medium text-black mb-2">Select Maker</label>
               <select
                 value={searchFilters.make}
                 onChange={(e) => handleFilterChange('make', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
               >
-                <option value="">All Makes</option>
+                <option value="" className="text-black">All Makes</option>
                 {makes.map((make) => (
-                  <option key={make} value={make}>{make}</option>
+                  <option key={make} value={make} className="text-black">{make}</option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Select Model</label>
+              <label className="block text-sm font-medium text-black mb-2">Select Model</label>
               <input
                 type="text"
                 value={searchFilters.model}
                 onChange={(e) => handleFilterChange('model', e.target.value)}
                 placeholder="Enter model"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-black"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Select Year</label>
+              <label className="block text-sm font-medium text-black mb-2">Select Year</label>
               <select
                 value={searchFilters.year}
                 onChange={(e) => handleFilterChange('year', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
               >
-                <option value="">All Years</option>
+                <option value="" className="text-black">All Years</option>
                 {years.map((year) => (
-                  <option key={year} value={year}>{year}</option>
+                  <option key={year} value={year} className="text-black">{year}</option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Model Code</label>
+              <label className="block text-sm font-medium text-black mb-2">Model Code</label>
               <input
                 type="text"
                 value={searchFilters.modelCode}
                 onChange={(e) => handleFilterChange('modelCode', e.target.value)}
                 placeholder="Enter model code"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-black"
               />
             </div>
 
@@ -240,7 +240,7 @@ const PartsPage = () => {
           {/* Left Column - Categories */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">All Categories</h2>
+              <h2 className="text-lg font-bold text-black mb-4">All Categories</h2>
               <div className="space-y-3">
                 {categories.map((category, index) => (
                   <CategoryCard key={index} category={category} />
@@ -253,8 +253,8 @@ const PartsPage = () => {
           <div className="lg:col-span-3">
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-lg font-bold text-gray-900">Search Results</h2>
-                <span className="text-sm text-gray-600">{sampleParts.length} parts found</span>
+                <h2 className="text-lg font-bold text-black">Search Results</h2>
+                <span className="text-sm text-black">{sampleParts.length} parts found</span>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -266,8 +266,8 @@ const PartsPage = () => {
               {sampleParts.length === 0 && (
                 <div className="text-center py-12">
                   <div className="text-gray-400 text-6xl mb-4">🔧</div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No parts found</h3>
-                  <p className="text-gray-600">Try adjusting your search criteria</p>
+                  <h3 className="text-lg font-medium text-black mb-2">No parts found</h3>
+                  <p className="text-black">Try adjusting your search criteria</p>
                 </div>
               )}
             </div>
@@ -278,13 +278,13 @@ const PartsPage = () => {
         {showInquiryForm && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">
+              <h3 className="text-lg font-bold text-black mb-4">
                 Parts Inquiry - {selectedPart?.name}
               </h3>
               
               <form onSubmit={handleInquirySubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Destination Port</label>
+                  <label className="block text-sm font-medium text-black mb-1">Destination Port</label>
                   <input
                     type="text"
                     required
@@ -293,7 +293,7 @@ const PartsPage = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Country Name</label>
+                  <label className="block text-sm font-medium text-black mb-1">Country Name</label>
                   <input
                     type="text"
                     required
@@ -302,7 +302,7 @@ const PartsPage = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Person Name</label>
+                  <label className="block text-sm font-medium text-black mb-1">Person Name</label>
                   <input
                     type="text"
                     required
@@ -311,7 +311,7 @@ const PartsPage = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                  <label className="block text-sm font-medium text-black mb-1">Email</label>
                   <input
                     type="email"
                     required
@@ -320,7 +320,7 @@ const PartsPage = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Mobile</label>
+                  <label className="block text-sm font-medium text-black mb-1">Mobile</label>
                   <input
                     type="tel"
                     required
@@ -329,7 +329,7 @@ const PartsPage = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                  <label className="block text-sm font-medium text-black mb-1">Address</label>
                   <textarea
                     rows="3"
                     required
@@ -338,7 +338,7 @@ const PartsPage = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                  <label className="block text-sm font-medium text-black mb-1">Message</label>
                   <textarea
                     rows="3"
                     placeholder="Additional details about your inquiry..."

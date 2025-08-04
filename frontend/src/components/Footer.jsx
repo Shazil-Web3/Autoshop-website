@@ -17,7 +17,7 @@ const Footer = () => {
               <li><a href="/" className="text-gray-300 hover:text-white transition-colors">Home</a></li>
               <li><a href="/about" className="text-gray-300 hover:text-white transition-colors">About Us</a></li>
               <li><a href="/inventory" className="text-gray-300 hover:text-white transition-colors">Inventory</a></li>
-              <li><a href="/auto-parts" className="text-gray-300 hover:text-white transition-colors">Auto Parts</a></li>
+              <li><a href="/inventory/parts" className="text-gray-300 hover:text-white transition-colors">Auto Parts</a></li>
               <li><a href="/career" className="text-gray-300 hover:text-white transition-colors">Career</a></li>
               <li><a href="/investment" className="text-gray-300 hover:text-white transition-colors">Investment</a></li>
             </ul>
@@ -39,13 +39,12 @@ const Footer = () => {
               <li>🌐 www.autexline.com</li>
               <li>📍 Global Trade Center</li>
             </ul>
+            <div className="mt-4 pt-4 border-t border-gray-700">
+              <p className="text-xs text-gray-400">
+                © 2024 Autexline. All rights reserved.
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="border-t border-gray-700 mt-8 pt-8 text-center">
-          <p className="text-gray-300">
-            © 2024 Autexline. All rights reserved. | 
-            <a href="/about" className="text-blue-400 hover:text-blue-300 ml-2 transition-colors">About Us</a>
-          </p>
         </div>
       </div>
     </footer>
