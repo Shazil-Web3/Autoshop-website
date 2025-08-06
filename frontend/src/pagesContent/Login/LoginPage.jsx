@@ -14,6 +14,7 @@ const LoginPage = () => {
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loginError, setLoginError] = useState('');
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -28,6 +29,11 @@ const LoginPage = () => {
         ...prev,
         [name]: ''
       }));
+    }
+    
+    // Clear login error when user starts typing
+    if (loginError) {
+      setLoginError('');
     }
   };
 
@@ -69,6 +75,7 @@ const LoginPage = () => {
     }
 
     setIsSubmitting(true);
+    setLoginError('');
 
     try {
       const { rememberMe, ...loginData } = formData;
@@ -78,14 +85,12 @@ const LoginPage = () => {
       // Set auth data in localStorage
       apiService.setAuthData(response);
       
-      alert('Login successful! Welcome back to Autexline.');
-      
-      // Redirect based on user role
+      // Redirect based on user role without showing alert
       const dashboardRoute = getDashboardRoute(response.user);
       router.push(dashboardRoute);
     } catch (error) {
       console.error('Login error:', error);
-      alert(error.message || 'Login failed. Please check your credentials and try again.');
+      setLoginError(error.message || 'Login failed. Please check your credentials and try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -105,6 +110,20 @@ const LoginPage = () => {
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
+            {/* Login Error */}
+            {loginError && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <div className="flex items-center space-x-2">
+                  <div className="bg-red-100 p-1 rounded-full">
+                    <svg className="w-4 h-4 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <span className="text-red-800 font-medium text-sm">{loginError}</span>
+                </div>
+              </div>
+            )}
+
             {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">

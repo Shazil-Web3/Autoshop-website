@@ -11,7 +11,8 @@ import {
   ArrowLeftIcon,
   EyeIcon,
   PencilIcon,
-  TrashIcon
+  TrashIcon,
+  ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
 
 const DashboardPage = () => {
@@ -19,7 +20,6 @@ const DashboardPage = () => {
   const [vehicles, setVehicles] = useState([]);
   const [parts, setParts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState('');
 
   // Check if user is admin
   useEffect(() => {
@@ -30,6 +30,11 @@ const DashboardPage = () => {
     }
     loadData();
   }, [router]);
+
+  const handleLogout = () => {
+    apiService.logout();
+    router.push('/login');
+  };
 
   const loadData = async () => {
     setIsLoading(true);
@@ -46,7 +51,6 @@ const DashboardPage = () => {
       setParts([]);
     } catch (error) {
       console.error('Error loading data:', error);
-      setMessage('Error loading dashboard data');
     } finally {
       setIsLoading(false);
     }
@@ -92,21 +96,14 @@ const DashboardPage = () => {
                 <p className="text-gray-600 mt-2">View all products and system statistics</p>
               </div>
             </div>
+            <button
+              onClick={handleLogout}
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2"
+            >
+              <ArrowRightOnRectangleIcon className="w-4 h-4" />
+              <span>Logout</span>
+            </button>
           </div>
-
-          {/* Message */}
-          {message && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-              <div className="flex items-center space-x-2">
-                <div className="bg-blue-100 p-1 rounded-full">
-                  <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <span className="text-blue-800 font-medium">{message}</span>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Stats Grid */}
@@ -230,31 +227,6 @@ const DashboardPage = () => {
                 ))}
               </div>
             )}
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="mt-8 bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Link
-              href="/admin/product-requests"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg text-center font-medium transition-colors"
-            >
-              Review Product Requests
-            </Link>
-            <Link
-              href="/admin/account-requests"
-              className="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-3 rounded-lg text-center font-medium transition-colors"
-            >
-              Review Account Requests
-            </Link>
-            <Link
-              href="/admin/product-management"
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg text-center font-medium transition-colors"
-            >
-              Manage Products
-            </Link>
           </div>
         </div>
       </div>

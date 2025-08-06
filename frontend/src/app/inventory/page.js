@@ -1,5 +1,5 @@
 "use client";
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
 import { useGlobalState } from '../../context/GlobalStateContext';
@@ -13,11 +13,35 @@ const InventoryPage = () => {
     bikes: false
   });
 
+  // Refs for scrolling
+  const stockCarsRef = useRef(null);
+  const salvageVehiclesRef = useRef(null);
+  const constructionMachineryRef = useRef(null);
+  const bikesRef = useRef(null);
+
   const toggleSection = (section) => {
     setOpenSections(prev => ({
       ...prev,
       [section]: !prev[section]
     }));
+  };
+
+  const scrollToSection = (sectionRef, sectionName) => {
+    if (sectionRef.current) {
+      // Open the section if it's closed
+      if (!openSections[sectionName]) {
+        setOpenSections(prev => ({
+          ...prev,
+          [sectionName]: true
+        }));
+      }
+      
+      // Scroll to the section
+      sectionRef.current.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
   };
 
   const VehicleCard = ({ vehicle, type }) => (
@@ -181,15 +205,42 @@ const InventoryPage = () => {
               <h1 className="text-4xl font-bold text-black">Inventory</h1>
               <p className="text-black mt-3 text-lg">Browse our extensive collection of vehicles, machinery, and parts</p>
             </div>
-            <Link 
-              href="/admin"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-base font-medium transition-colors flex items-center space-x-2"
+          </div>
+        </div>
+      </div>
+
+      {/* Sticky Navigation Bar */}
+      <div className="sticky top-0 z-10 bg-white shadow-md border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex flex-wrap gap-4 justify-center">
+            <button 
+              onClick={() => scrollToSection(stockCarsRef, 'stockCars')}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-xl text-lg font-semibold transition-all duration-300 flex items-center space-x-3 shadow-lg hover:shadow-xl transform hover:scale-105"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              <span>Add Product</span>
-            </Link>
+              <span className="text-2xl">🚗</span>
+              <span>Stock Cars</span>
+            </button>
+            <button 
+              onClick={() => scrollToSection(salvageVehiclesRef, 'salvageVehicles')}
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-xl text-lg font-semibold transition-all duration-300 flex items-center space-x-3 shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
+              <span className="text-2xl">🚛</span>
+              <span>Salvage Vehicles</span>
+            </button>
+            <button 
+              onClick={() => scrollToSection(constructionMachineryRef, 'constructionMachinery')}
+              className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-4 rounded-xl text-lg font-semibold transition-all duration-300 flex items-center space-x-3 shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
+              <span className="text-2xl">🏗️</span>
+              <span>Construction Machinery</span>
+            </button>
+            <button 
+              onClick={() => scrollToSection(bikesRef, 'bikes')}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-4 rounded-xl text-lg font-semibold transition-all duration-300 flex items-center space-x-3 shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
+              <span className="text-2xl">🏍️</span>
+              <span>Motorcycles</span>
+            </button>
           </div>
         </div>
       </div>
@@ -197,7 +248,7 @@ const InventoryPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
           {/* Stock Cars Section */}
-          <div>
+          <div ref={stockCarsRef}>
             <SectionHeader
               title="Stock Cars"
               count={inventory.stockCars.length}
@@ -215,7 +266,7 @@ const InventoryPage = () => {
           </div>
 
           {/* Salvage Vehicles Section */}
-          <div>
+          <div ref={salvageVehiclesRef}>
             <SectionHeader
               title="Salvage Vehicles"
               count={inventory.salvageVehicles.length}
@@ -233,7 +284,7 @@ const InventoryPage = () => {
           </div>
 
           {/* Construction Machinery Section */}
-          <div>
+          <div ref={constructionMachineryRef}>
             <SectionHeader
               title="Construction Machinery"
               count={inventory.constructionMachinery.length}
@@ -251,7 +302,7 @@ const InventoryPage = () => {
           </div>
 
           {/* Bikes Section */}
-          <div>
+          <div ref={bikesRef}>
             <SectionHeader
               title="Motorcycles"
               count={inventory.bikes.length}

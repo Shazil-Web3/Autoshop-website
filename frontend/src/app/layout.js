@@ -2,6 +2,7 @@ import "./globals.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { GlobalStateProvider } from "../context/GlobalStateContext";
+import ConditionalLayout from "../components/ConditionalLayout";
 
 export const metadata = {
   title: "Autexline - Automotive Sourcing & Export",
@@ -13,11 +14,9 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className="font-sans">
         <GlobalStateProvider>
-          <Header />
-          <main>
+          <ConditionalLayout>
             {children}
-          </main>
-          <Footer />
+          </ConditionalLayout>
         </GlobalStateProvider>
       </body>
     </html>

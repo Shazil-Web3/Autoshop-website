@@ -11,7 +11,8 @@ import {
   EyeIcon,
   PencilIcon,
   TrashIcon,
-  ChartBarIcon
+  ChartBarIcon,
+  ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
 
 const AgentPage = () => {
@@ -19,7 +20,6 @@ const AgentPage = () => {
   const [user, setUser] = useState(null);
   const [invoices, setInvoices] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState('');
 
   // Check if user is agent
   useEffect(() => {
@@ -43,6 +43,11 @@ const AgentPage = () => {
     loadData();
   }, [router]);
 
+  const handleLogout = () => {
+    apiService.logout();
+    router.push('/login');
+  };
+
   const loadData = async () => {
     setIsLoading(true);
     try {
@@ -55,7 +60,6 @@ const AgentPage = () => {
       setInvoices([]);
     } catch (error) {
       console.error('Error loading data:', error);
-      setMessage('Error loading your data');
     } finally {
       setIsLoading(false);
     }
@@ -78,14 +82,6 @@ const AgentPage = () => {
       color: 'bg-green-500',
       href: '/my-invoices',
       count: invoices.length
-    },
-    {
-      id: 'profile',
-      title: 'My Profile',
-      description: 'View and update your agent information',
-      icon: UserIcon,
-      color: 'bg-purple-500',
-      href: '/profile'
     }
   ];
 
@@ -104,30 +100,14 @@ const AgentPage = () => {
                 Agent ID: {user?.agentId || 'N/A'}
               </span>
               <button
-                onClick={() => {
-                  apiService.logout();
-                  router.push('/login');
-                }}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                onClick={handleLogout}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2"
               >
-                Logout
+                <ArrowRightOnRectangleIcon className="w-4 h-4" />
+                <span>Logout</span>
               </button>
             </div>
           </div>
-
-          {/* Message */}
-          {message && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-              <div className="flex items-center space-x-2">
-                <div className="bg-blue-100 p-1 rounded-full">
-                  <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <span className="text-blue-800 font-medium">{message}</span>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Navigation Instructions */}
@@ -146,7 +126,7 @@ const AgentPage = () => {
         </div>
 
         {/* Main Dashboard Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           {agentCards.map((card) => (
             <Link
               key={card.id}
@@ -177,45 +157,6 @@ const AgentPage = () => {
               </div>
             </Link>
           ))}
-        </div>
-
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <DocumentTextIcon className="w-6 h-6 text-blue-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Invoices</p>
-                <p className="text-2xl font-semibold text-gray-900">{invoices.length}</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <ClipboardDocumentListIcon className="w-6 h-6 text-green-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">This Month</p>
-                <p className="text-2xl font-semibold text-gray-900">0</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <ChartBarIcon className="w-6 h-6 text-purple-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-                <p className="text-2xl font-semibold text-gray-900">$0</p>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Recent Invoices */}
@@ -310,18 +251,18 @@ const AgentPage = () => {
             <div>
               <h3 className="text-lg font-medium text-gray-900 mb-3">Personal Details</h3>
               <div className="space-y-2">
-                <p><span className="font-medium">Name:</span> {user?.firstName} {user?.lastName}</p>
-                <p><span className="font-medium">Email:</span> {user?.email}</p>
-                <p><span className="font-medium">Phone:</span> {user?.phone}</p>
-                <p><span className="font-medium">Agent ID:</span> {user?.agentId || 'Not assigned'}</p>
+                <p className="text-black"><span className="font-medium">Name:</span> {user?.firstName} {user?.lastName}</p>
+                <p className="text-black"><span className="font-medium">Email:</span> {user?.email}</p>
+                <p className="text-black"><span className="font-medium">Phone:</span> {user?.phone}</p>
+                <p className="text-black"><span className="font-medium">Agent ID:</span> {user?.agentId || 'Not assigned'}</p>
               </div>
             </div>
             <div>
               <h3 className="text-lg font-medium text-gray-900 mb-3">Location</h3>
               <div className="space-y-2">
-                <p><span className="font-medium">City:</span> {user?.city}</p>
-                <p><span className="font-medium">County:</span> {user?.county}</p>
-                <p><span className="font-medium">Status:</span> 
+                <p className="text-black"><span className="font-medium">City:</span> {user?.city}</p>
+                <p className="text-black"><span className="font-medium">County:</span> {user?.county}</p>
+                <p className="text-black"><span className="font-medium">Status:</span> 
                   <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                     user?.status === 'approved' 
                       ? 'bg-green-100 text-green-800' 

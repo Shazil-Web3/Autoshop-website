@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import FilterModal from "../components/FilterModal";
 import Header from "../components/Header";
+import ImageSlider from "../components/ImageSlider";
+import WhatsAppButton from "../components/WhatsAppButton";
 
 export default function Home() {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
@@ -94,6 +96,15 @@ export default function Home() {
     { name: "For Handicapped", count: "CANTER", icon: "♿" }
   ];
 
+  // Images for the slider
+  const sliderImages = [
+    "/8.jpg",
+    "/9.jpg", 
+    "/10.jpg",
+    "/11.jpg",
+    "/12.jpg"
+  ];
+
   const testimonials = [
     {
       name: "Ahmed Hassan",
@@ -152,15 +163,9 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section with Banner Image */}
-      <section className="relative h-96">
-        {/* Banner Image */}
-        <Image
-          src="/2.jpg"
-          alt="Banner"
-          fill
-          className="object-cover"
-          priority
-        />
+      <section className="relative h-[500px]">
+        {/* Banner Image Slider */}
+        <ImageSlider images={sliderImages} />
         
         {/* Filter Button */}
         <div className="absolute top-4 right-4 z-10">
@@ -451,11 +456,10 @@ export default function Home() {
       </div>
 
       {/* WhatsApp Button */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <button className="bg-green-500 text-white p-4 rounded-full shadow-lg hover:bg-green-600 transition-colors">
-          <span className="text-2xl">💬</span>
-        </button>
-      </div>
+      <WhatsAppButton 
+        phoneNumber="923120339999"
+        message="Hello! I'm interested in your vehicles from Autexline. Can you help me with more information?"
+      />
 
       {/* Filter Modal */}
       <FilterModal 

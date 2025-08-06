@@ -1,14 +1,17 @@
 "use client";
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { use } from 'react';
 import Image from 'next/image';
-import { ChevronLeftIcon, ChevronRightIcon, ShareIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import { ChevronLeftIcon, ChevronRightIcon, ShareIcon } from '@heroicons/react/24/outline';
 import { useGlobalState } from '../../../../context/GlobalStateContext';
+import InquiryForm from '../../../../components/InquiryForm';
 
 const ProductDetailPage = ({ params }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showThumbnails, setShowThumbnails] = useState(true);
+  const [showInquiryForm, setShowInquiryForm] = useState(false);
   const { inventory } = useGlobalState();
+  const inquirySectionRef = useRef(null);
 
   // Unwrap params Promise for Next.js 15 compatibility
   const unwrappedParams = use(params);
@@ -41,30 +44,30 @@ const ProductDetailPage = ({ params }) => {
   // Create images array from the product image
   const images = [product.image, "/5.jpeg", "/6.jpeg", "/7.jpeg", "/4.jpg", "/5.jpeg", "/6.jpeg", "/7.jpeg"];
 
-  // Create specs object from product data
+  // Create specs object from product data with shorter labels
   const specs = {
     mileage: product.mileage,
     year: product.year,
     engine: product.engine,
     transmission: product.transmission,
     fuel: product.fuel,
-    referenceNumber: product.stockNo,
-    chassisNumber: "WDDWF4JB0JR123456", // Default value
+    refNo: product.stockNo,
+    chassis: "WDDWF4JB0JR123456", // Shortened
     engineSize: product.engine,
     location: product.location,
     version: product.title.split('/')[1] || "Standard",
-    drive: product.drive || "2wheel drive",
-    transmissionType: product.transmission,
-    registrationYear: `${product.year}-`,
-    manufactureYear: "N/A",
+    drive: product.drive || "2WD", // Shortened
+    transType: product.transmission, // Shortened
+    regYear: `${product.year}-`, // Shortened
+    mfgYear: "N/A", // Shortened
     steering: "Left",
-    exteriorColor: product.color,
+    color: product.color, // Shortened
     seats: product.seats || "5",
     doors: product.doors || "4",
     m3: "13.589",
     dimension: "4.97x1.86x1.47 m",
     weight: "2,205 kg",
-    subReferenceNumber: `${product.stockNo}-001`
+    subRef: `${product.stockNo}-001` // Shortened
   };
 
   const nextImage = () => {
@@ -81,6 +84,37 @@ const ProductDetailPage = ({ params }) => {
 
   const goToImage = (index) => {
     setCurrentImageIndex(index);
+  };
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: product.title,
+          text: `Check out this ${product.title} on Autexline`,
+          url: window.location.href,
+        });
+      } catch (error) {
+        console.log('Error sharing:', error);
+      }
+    } else {
+      // Fallback: copy to clipboard
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        alert('Link copied to clipboard!');
+      } catch (error) {
+        console.log('Error copying to clipboard:', error);
+      }
+    }
+  };
+
+  const scrollToInquiry = () => {
+    if (inquirySectionRef.current) {
+      inquirySectionRef.current.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
   };
 
   return (
@@ -151,13 +185,12 @@ const ProductDetailPage = ({ params }) => {
               {/* Action Buttons */}
               <div className="flex items-center justify-between">
                 <div className="flex space-x-2">
-                  <button className="flex items-center space-x-1 bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700 transition-colors">
+                  <button 
+                    onClick={handleShare}
+                    className="flex items-center space-x-1 bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700 transition-colors"
+                  >
                     <ShareIcon className="w-4 h-4" />
                     <span>Share</span>
-                  </button>
-                  <button className="flex items-center space-x-1 bg-gray-600 text-white px-3 py-2 rounded text-sm hover:bg-gray-700 transition-colors">
-                    <ArrowDownTrayIcon className="w-4 h-4" />
-                    <span>Download all images</span>
                   </button>
                 </div>
                 <button
@@ -181,12 +214,28 @@ const ProductDetailPage = ({ params }) => {
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-3xl font-bold text-red-600">{product.price}</span>
                 </div>
-                <div className="text-sm text-gray-600 mb-2">
+                <div className="text-sm text-gray-600 mb-4">
                   Total Price: <span className="font-semibold">{product.totalPrice}</span> C&F BAHRAIN
                 </div>
-                <button className="bg-orange-500 text-white px-4 py-2 rounded font-medium hover:bg-orange-600 transition-colors w-full">
-                  GET A PRICE QUOTE NOW
-                </button>
+                
+                {/* Action Buttons */}
+                <div className="space-y-3">
+                  <button 
+                    onClick={scrollToInquiry}
+                    className="bg-orange-500 text-white px-4 py-3 rounded font-medium hover:bg-orange-600 transition-colors w-full"
+                  >
+                    GET A PRICE QUOTE NOW
+                  </button>
+                  
+                  <div className="text-center text-gray-500 font-medium">OR</div>
+                  
+                  <button 
+                    onClick={scrollToInquiry}
+                    className="bg-orange-500 text-white px-4 py-3 rounded font-medium hover:bg-orange-600 transition-colors w-full"
+                  >
+                    BUY NOW
+                  </button>
+                </div>
               </div>
 
               {/* Quality Check Section */}
@@ -216,21 +265,21 @@ const ProductDetailPage = ({ params }) => {
                     <div className="border-r border-gray-200">
                       {Object.entries(specs).slice(0, Math.ceil(Object.keys(specs).length / 2)).map(([key, value]) => (
                         <div key={key} className="flex justify-between p-3 border-b border-gray-100">
-                          <span className="text-sm text-gray-600 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
-                          <span className="text-sm font-medium text-gray-900">{value}</span>
+                          <span className="text-xs text-gray-600 capitalize font-medium">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
+                          <span className="text-xs font-medium text-gray-900 text-right max-w-[60%] truncate" title={value}>{value}</span>
                         </div>
                       ))}
                     </div>
                     <div>
                       {Object.entries(specs).slice(Math.ceil(Object.keys(specs).length / 2)).map(([key, value]) => (
                         <div key={key} className="flex justify-between p-3 border-b border-gray-100">
-                          <span className="text-sm text-gray-600 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
-                          <span className="text-sm font-medium text-gray-900">{value}</span>
-                </div>
+                          <span className="text-xs text-gray-600 capitalize font-medium">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
+                          <span className="text-xs font-medium text-gray-900 text-right max-w-[60%] truncate" title={value}>{value}</span>
+                        </div>
                       ))}
-            </div>
-          </div>
-        </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Features Section */}
@@ -255,6 +304,20 @@ const ProductDetailPage = ({ params }) => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Inquiry Section */}
+        <div ref={inquirySectionRef} className="mt-8">
+          <InquiryForm 
+            productInfo={{
+              make: product.title.split(' ')[0],
+              model: product.title,
+              year: product.year,
+              price: product.price,
+              stockNo: product.stockNo
+            }}
+            onClose={() => setShowInquiryForm(false)}
+          />
         </div>
       </div>
     </div>
