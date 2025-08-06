@@ -70,7 +70,7 @@ const InventoryPage = () => {
             </span>
           </div>
           <div className="mt-4 text-base">
-            <div className="font-medium text-black">Ref No. {vehicle.stockNo}</div>
+            <div className="bg-gray-100 px-3 py-2 rounded font-medium text-black">Ref No. {vehicle.stockNo}</div>
             <div className="text-sm text-black mt-2">
               <div className="bg-orange-500 text-white px-3 py-1 rounded text-sm inline-block">{type.toUpperCase()}</div>
             </div>
@@ -80,29 +80,41 @@ const InventoryPage = () => {
         {/* Details Section */}
         <div className="flex-1">
           <div className="mb-6">
-            <h3 className="text-blue-600 text-xl font-medium hover:underline cursor-pointer mb-4">
+            <h3 className="text-blue-600 text-xl font-bold hover:underline cursor-pointer mb-4">
               {vehicle.title}
             </h3>
             <div className="flex flex-wrap gap-8 text-base">
-              <div>
-                <span className="text-black text-sm font-medium">Mileage</span>
-                <div className="font-bold text-lg text-black">{vehicle.mileage}</div>
+              <div className="flex items-center">
+                <div>
+                  <span className="text-black text-sm font-bold">Mileage</span>
+                  <div className="font-bold text-lg text-black">{vehicle.mileage}</div>
+                </div>
+                <div className="w-px h-12 bg-gray-300 mx-4"></div>
+              </div>
+              <div className="flex items-center">
+                <div>
+                  <span className="text-black text-sm font-bold">Year</span>
+                  <div className="font-bold text-lg text-black">{vehicle.year}</div>
+                </div>
+                <div className="w-px h-12 bg-gray-300 mx-4"></div>
+              </div>
+              <div className="flex items-center">
+                <div>
+                  <span className="text-black text-sm font-bold">Engine</span>
+                  <div className="font-bold text-lg text-black">{vehicle.engine}</div>
+                </div>
+                <div className="w-px h-12 bg-gray-300 mx-4"></div>
+              </div>
+              <div className="flex items-center">
+                <div>
+                  <span className="text-black text-sm font-bold">Trans</span>
+                  <div className="font-bold text-lg text-black">{vehicle.transmission}</div>
+                </div>
+                <div className="w-px h-12 bg-gray-300 mx-4"></div>
               </div>
               <div>
-                <span className="text-black text-sm font-medium">Year</span>
-                <div className="font-medium text-lg text-black">{vehicle.year}</div>
-              </div>
-              <div>
-                <span className="text-black text-sm font-medium">Engine</span>
-                <div className="font-medium text-lg text-black">{vehicle.engine}</div>
-              </div>
-              <div>
-                <span className="text-black text-sm font-medium">Trans</span>
-                <div className="font-medium text-lg text-black">{vehicle.transmission}</div>
-              </div>
-              <div>
-                <span className="text-black text-sm font-medium">Location</span>
-                <div className="font-medium text-lg text-black flex items-center gap-2">
+                <span className="text-black text-sm font-bold">Location</span>
+                <div className="font-bold text-lg text-black flex items-center gap-2">
                   <span>🇰🇷</span> {vehicle.location}
                 </div>
               </div>
@@ -114,23 +126,23 @@ const InventoryPage = () => {
             <tbody>
               <tr>
                 <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Model code</td>
-                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium">-</td>
+                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium break-words whitespace-normal">-</td>
                 <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Steering</td>
-                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium">Left</td>
+                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium break-words whitespace-normal">Left</td>
                 <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Fuel</td>
-                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium">{vehicle.fuel}</td>
+                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium break-words whitespace-normal">{vehicle.fuel}</td>
                 <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Seats</td>
-                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium">{vehicle.seats || "ASK"}</td>
+                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium break-words whitespace-normal">{vehicle.seats || "ASK"}</td>
               </tr>
               <tr>
                 <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Engine code</td>
-                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium">-</td>
+                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium break-words whitespace-normal">-</td>
                 <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Color</td>
-                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium">{vehicle.color}</td>
+                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium break-words whitespace-normal">{vehicle.color}</td>
                 <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Drive</td>
-                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium">{vehicle.drive || "ASK"}</td>
+                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium break-words whitespace-normal">{vehicle.drive || "ASK"}</td>
                 <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Doors</td>
-                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium">{vehicle.doors || "ASK"}</td>
+                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium break-words whitespace-normal">{vehicle.doors || "ASK"}</td>
               </tr>
             </tbody>
           </table>
@@ -147,7 +159,7 @@ const InventoryPage = () => {
         </div>
 
         {/* Pricing Section */}
-        <div className="w-full lg:w-56 flex-shrink-0 text-right">
+        <div className="w-full lg:w-56 flex-shrink-0 text-left">
           <div className="mb-4">
             <span className="text-black text-sm font-medium">Price</span>
             <div className="text-red-600 text-2xl font-bold">{vehicle.price}</div>

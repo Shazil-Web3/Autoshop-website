@@ -22,10 +22,12 @@ const AdminPage = () => {
   const [dealersCount, setDealersCount] = useState(0);
   const [agentsCount, setAgentsCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
   // Check if user is admin
   useEffect(() => {
     const user = apiService.getCurrentUser();
+    setCurrentUser(user);
     if (!user || user.role !== 'admin') {
       router.push('/login');
       return;
@@ -109,7 +111,7 @@ const AdminPage = () => {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-500">
-                Welcome, {apiService.getCurrentUser()?.firstName || 'Admin'}
+                Welcome, {currentUser?.firstName || 'Admin'}
               </span>
               <button
                 onClick={handleLogout}

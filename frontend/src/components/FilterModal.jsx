@@ -89,10 +89,10 @@ const FilterModal = ({ isOpen, onClose }) => {
     "Tractor", "Tractor Head", "Motorcycle"
   ];
 
-  const fuelTypes = ["Petrol", "Diesel", "Hybrid", "Electric", "Petrol-Hybrid", "Diesel-Hybrid", "LPG"];
-  const transmissions = ["Automatic", "Manual", "Semi Auto", "Unspecified"];
-  const steeringOptions = ["Left", "Right", "Center"];
-  const drivetrainOptions = ["4 Wheel Drive", "2 Wheel Drive"];
+  const fuelTypes = ["HYBRID", "ELECTRIC", "PETROL", "DIESEL", "PETROL-HYBRID", "DIESEL-HYBRID", "LPG"];
+  const transmissions = ["Semi Auto", "Automatic", "Manual", "Unspecified"];
+  const steeringOptions = ["left", "right", "center"];
+  const drivetrainOptions = ["4 Wheel drive", "2 Wheel drive"];
   const colors = ["White", "Black", "Silver", "Gray", "Red", "Blue", "Green", "Yellow", "Orange", "Purple", "Brown", "Pink", "Gold", "Bronze", "Other"];
   
   const stockCountries = ["Japan", "Korea", "USA", "Germany", "UK", "Australia", "Thailand", "Singapore", "UAE", "Other"];
@@ -483,13 +483,39 @@ const FilterModal = ({ isOpen, onClose }) => {
                       ))}
                     </select>
                   </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-2">Capacity From</label>
+                    <input
+                      type="number"
+                      name="capacityFrom"
+                      value={filters.capacityFrom}
+                      onChange={handleInputChange}
+                      min="0"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
+                      placeholder="Min capacity"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-2">Capacity To</label>
+                    <input
+                      type="number"
+                      name="capacityTo"
+                      value={filters.capacityTo}
+                      onChange={handleInputChange}
+                      min="0"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
+                      placeholder="Max capacity"
+                    />
+                  </div>
                 </div>
               </div>
 
               {/* Stock Information */}
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h3 className="text-lg font-semibold mb-4 text-black">Stock Information</h3>
-                <div className="grid md:grid-cols-4 gap-4">
+                <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-black mb-2">Stock Country</label>
                     <select
@@ -518,32 +544,6 @@ const FilterModal = ({ isOpen, onClose }) => {
                         <option key={index} value={location}>{location}</option>
                       ))}
                     </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-black mb-2">Capacity From</label>
-                    <input
-                      type="number"
-                      name="capacityFrom"
-                      value={filters.capacityFrom}
-                      onChange={handleInputChange}
-                      min="0"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
-                      placeholder="Min capacity"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-black mb-2">Capacity To</label>
-                    <input
-                      type="number"
-                      name="capacityTo"
-                      value={filters.capacityTo}
-                      onChange={handleInputChange}
-                      min="0"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-black"
-                      placeholder="Max capacity"
-                    />
                   </div>
                 </div>
               </div>

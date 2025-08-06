@@ -266,7 +266,7 @@ const ProductDetailPage = ({ params }) => {
                       {Object.entries(specs).slice(0, Math.ceil(Object.keys(specs).length / 2)).map(([key, value]) => (
                         <div key={key} className="flex justify-between p-3 border-b border-gray-100">
                           <span className="text-xs text-gray-600 capitalize font-medium">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
-                          <span className="text-xs font-medium text-gray-900 text-right max-w-[60%] truncate" title={value}>{value}</span>
+                          <span className="text-xs font-medium text-gray-900 text-right max-w-[60%] break-words whitespace-normal" title={value}>{value}</span>
                         </div>
                       ))}
                     </div>
@@ -274,7 +274,7 @@ const ProductDetailPage = ({ params }) => {
                       {Object.entries(specs).slice(Math.ceil(Object.keys(specs).length / 2)).map(([key, value]) => (
                         <div key={key} className="flex justify-between p-3 border-b border-gray-100">
                           <span className="text-xs text-gray-600 capitalize font-medium">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
-                          <span className="text-xs font-medium text-gray-900 text-right max-w-[60%] truncate" title={value}>{value}</span>
+                          <span className="text-xs font-medium text-gray-900 text-right max-w-[60%] break-words whitespace-normal" title={value}>{value}</span>
                         </div>
                       ))}
                     </div>

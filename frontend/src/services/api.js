@@ -7,6 +7,11 @@ class ApiService {
 
   // Helper method to get auth headers
   getAuthHeaders() {
+    if (typeof window === 'undefined') {
+      return {
+        'Content-Type': 'application/json',
+      };
+    }
     const token = localStorage.getItem('token');
     return {
       'Content-Type': 'application/json',
@@ -257,23 +262,35 @@ class ApiService {
 
   // Check if user is authenticated
   isAuthenticated() {
+    if (typeof window === 'undefined') {
+      return false;
+    }
     return !!localStorage.getItem('token');
   }
 
   // Get current user from localStorage
   getCurrentUser() {
+    if (typeof window === 'undefined') {
+      return null;
+    }
     const userStr = localStorage.getItem('user');
     return userStr ? JSON.parse(userStr) : null;
   }
 
   // Logout
   logout() {
+    if (typeof window === 'undefined') {
+      return;
+    }
     localStorage.removeItem('token');
     localStorage.removeItem('user');
   }
 
   // Set auth data after login/register
   setAuthData(data) {
+    if (typeof window === 'undefined') {
+      return;
+    }
     if (data.token) {
       localStorage.setItem('token', data.token);
     }

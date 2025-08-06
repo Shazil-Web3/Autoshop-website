@@ -4,7 +4,7 @@ const productRequestController = require('../controllers/productRequestControlle
 const authMiddleware = require('../middleware/authMiddleware');
 
 // Public routes (require authentication)
-router.use(authMiddleware);
+router.use(authMiddleware.protect);
 
 // User routes (dealers/agents)
 router.post('/', productRequestController.createRequest);

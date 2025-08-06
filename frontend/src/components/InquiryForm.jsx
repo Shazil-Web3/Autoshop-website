@@ -8,21 +8,24 @@ const InquiryForm = ({ productInfo = null, onClose = null }) => {
     email: '',
     tel: '',
     address: '',
-    city: '',
-    country: '',
+    
+    // Destination Information
+    destinationCountry: '',
+    destinationPort: '',
     
     // Vehicle Information (pre-filled if productInfo is provided)
     make: productInfo?.make || '',
-    model: productInfo?.model || '',
-    year: productInfo?.year || '',
-    price: productInfo?.price || '',
-    stockNo: productInfo?.stockNo || '',
-    
-    // Additional Information
+    bodyType: '',
+    transmission: '',
+    yearFrom: '',
+    yearTo: '',
+    priceFrom: '',
+    priceTo: '',
+    mileageFrom: '',
+    mileageTo: '',
+    steering: '',
     message: ''
   });
-
-  const [activeTab, setActiveTab] = useState('guest');
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -59,6 +62,26 @@ const InquiryForm = ({ productInfo = null, onClose = null }) => {
     "Georgia", "Armenia", "Ukraine", "Belarus", "Moldova", "Russia"
   ];
 
+  const makes = [
+    "Toyota", "Nissan", "Honda", "Mazda", "Mitsubishi", "Subaru", "Suzuki", 
+    "Isuzu", "Daihatsu", "Hino", "Lexus", "Mercedes-Benz", "BMW", "Volkswagen", 
+    "Audi", "Peugeot", "Ford", "Volvo", "Land Rover", "Jaguar", "Jeep", 
+    "Chevrolet", "Hyundai", "Kia", "Ssangyong", "Renault Samsung", "Other"
+  ];
+
+  const bodyTypes = [
+    "Sedan", "SUV", "Hatchback", "Wagon", "Coupe", "Convertible", "Pickup", 
+    "Van", "Mini Van", "Bus", "Truck", "Machinery", "Motorcycle", "Other"
+  ];
+
+  const transmissions = [
+    "Automatic", "Manual", "CVT", "Semi-Automatic", "Other"
+  ];
+
+  const steeringOptions = [
+    "Left Hand Drive", "Right Hand Drive", "Either"
+  ];
+
   return (
     <div className="bg-white rounded-lg shadow-lg p-8 max-w-4xl mx-auto">
       {/* Header */}
@@ -72,38 +95,17 @@ const InquiryForm = ({ productInfo = null, onClose = null }) => {
           <span className="font-medium">GET A QUOTE</span>
         </div>
         
-        {/* Tabs */}
-        <div className="flex border-b border-gray-200">
-          <button
-            onClick={() => setActiveTab('guest')}
-            className={`px-6 py-3 font-medium text-sm ${
-              activeTab === 'guest' 
-                ? 'text-orange-500 border-b-2 border-orange-500' 
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Guest Inquiry
-          </button>
-          <button
-            onClick={() => setActiveTab('login')}
-            className={`px-6 py-3 font-medium text-sm ${
-              activeTab === 'login' 
-                ? 'text-orange-500 border-b-2 border-orange-500' 
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Log In
-          </button>
-        </div>
-        
         <p className="text-sm text-gray-600 mt-3">Please fill the *required fields.</p>
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Left Column */}
-          <div className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {/* Contact Information */}
+        <div>
+          <h3 className="text-2xl font-semibold mb-6 text-gray-800 border-b border-gray-200 pb-2">
+            Your Information
+          </h3>
+          <div className="grid md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-black mb-2">
                 Your Name *
@@ -113,12 +115,11 @@ const InquiryForm = ({ productInfo = null, onClose = null }) => {
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                placeholder="Full Name"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-black"
                 required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black"
+                placeholder="Enter your full name"
               />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-black mb-2">
                 Email *
@@ -128,12 +129,11 @@ const InquiryForm = ({ productInfo = null, onClose = null }) => {
                 name="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                placeholder="Email Address"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-black"
                 required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black"
+                placeholder="Enter your email address"
               />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-black mb-2">
                 Tel *
@@ -143,66 +143,276 @@ const InquiryForm = ({ productInfo = null, onClose = null }) => {
                 name="tel"
                 value={formData.tel}
                 onChange={handleInputChange}
-                placeholder="Cell Phone or Telephone No."
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-black"
                 required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black"
+                placeholder="Enter your phone number"
               />
             </div>
-          </div>
-
-          {/* Right Column */}
-          <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-black mb-2">
-                Your Country *
-              </label>
-              <select
-                name="country"
-                value={formData.country}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-black"
-                required
-              >
-                <option value="">Select</option>
-                {countries.map((country) => (
-                  <option key={country} value={country}>{country}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-black mb-2">
-                Address *
+                Your Address *
               </label>
               <input
                 type="text"
                 name="address"
                 value={formData.address}
                 onChange={handleInputChange}
-                placeholder="Street, Town, Province"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-black"
                 required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-black mb-2">
-                City *
-              </label>
-              <input
-                type="text"
-                name="city"
-                value={formData.city}
-                onChange={handleInputChange}
-                placeholder="City"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-black"
-                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black"
+                placeholder="Enter your address"
               />
             </div>
           </div>
         </div>
 
-        {/* Action Buttons */}
+        {/* Destination Information */}
+        <div>
+          <h3 className="text-2xl font-semibold mb-6 text-gray-800 border-b border-gray-200 pb-2">
+            Destination Information
+          </h3>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-black mb-2">
+                Destination Country *
+              </label>
+              <select
+                name="destinationCountry"
+                value={formData.destinationCountry}
+                onChange={handleInputChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black"
+              >
+                <option value="">Select-Destination Country</option>
+                {countries.map((country, index) => (
+                  <option key={index} value={country}>{country}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-black mb-2">
+                Destination Port *
+              </label>
+              <select
+                name="destinationPort"
+                value={formData.destinationPort}
+                onChange={handleInputChange}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black"
+              >
+                <option value="">Select-Destination Port</option>
+                <option value="Los Angeles">Los Angeles</option>
+                <option value="New York">New York</option>
+                <option value="Miami">Miami</option>
+                <option value="Seattle">Seattle</option>
+                <option value="Houston">Houston</option>
+                <option value="Vancouver">Vancouver</option>
+                <option value="Toronto">Toronto</option>
+                <option value="Montreal">Montreal</option>
+                <option value="London">London</option>
+                <option value="Rotterdam">Rotterdam</option>
+                <option value="Hamburg">Hamburg</option>
+                <option value="Antwerp">Antwerp</option>
+                <option value="Dubai">Dubai</option>
+                <option value="Singapore">Singapore</option>
+                <option value="Hong Kong">Hong Kong</option>
+                <option value="Shanghai">Shanghai</option>
+                <option value="Tokyo">Tokyo</option>
+                <option value="Sydney">Sydney</option>
+                <option value="Melbourne">Melbourne</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Vehicle Information */}
+        <div>
+          <h3 className="text-2xl font-semibold mb-6 text-gray-800 border-b border-gray-200 pb-2">
+            Vehicle Information
+          </h3>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-black mb-2">
+                Make
+              </label>
+              <select
+                name="make"
+                value={formData.make}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black"
+              >
+                <option value="">Make</option>
+                {makes.map((make, index) => (
+                  <option key={index} value={make}>{make}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-black mb-2">
+                Body Type
+              </label>
+              <select
+                name="bodyType"
+                value={formData.bodyType}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black"
+              >
+                <option value="">Make Body Type</option>
+                {bodyTypes.map((type, index) => (
+                  <option key={index} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-black mb-2">
+                Transmission
+              </label>
+              <select
+                name="transmission"
+                value={formData.transmission}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black"
+              >
+                <option value="">Transmission</option>
+                {transmissions.map((trans, index) => (
+                  <option key={index} value={trans}>{trans}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-black mb-2">
+                Steering
+              </label>
+              <select
+                name="steering"
+                value={formData.steering}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black"
+              >
+                <option value="">Steering</option>
+                {steeringOptions.map((option, index) => (
+                  <option key={index} value={option}>{option}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Year Range */}
+          <div className="grid md:grid-cols-2 gap-6 mt-6">
+            <div>
+              <label className="block text-sm font-medium text-black mb-2">
+                Year From
+              </label>
+              <input
+                type="number"
+                name="yearFrom"
+                value={formData.yearFrom}
+                onChange={handleInputChange}
+                min="1990"
+                max="2024"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black"
+                placeholder="From"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-black mb-2">
+                Year To
+              </label>
+              <input
+                type="number"
+                name="yearTo"
+                value={formData.yearTo}
+                onChange={handleInputChange}
+                min="1990"
+                max="2024"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black"
+                placeholder="To"
+              />
+            </div>
+          </div>
+
+          {/* Price Range */}
+          <div className="grid md:grid-cols-2 gap-6 mt-6">
+            <div>
+              <label className="block text-sm font-medium text-black mb-2">
+                Price From
+              </label>
+              <input
+                type="number"
+                name="priceFrom"
+                value={formData.priceFrom}
+                onChange={handleInputChange}
+                min="0"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black"
+                placeholder="From"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-black mb-2">
+                Price To
+              </label>
+              <input
+                type="number"
+                name="priceTo"
+                value={formData.priceTo}
+                onChange={handleInputChange}
+                min="0"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black"
+                placeholder="To"
+              />
+            </div>
+          </div>
+
+          {/* Mileage Range */}
+          <div className="grid md:grid-cols-2 gap-6 mt-6">
+            <div>
+              <label className="block text-sm font-medium text-black mb-2">
+                Mileage From
+              </label>
+              <input
+                type="number"
+                name="mileageFrom"
+                value={formData.mileageFrom}
+                onChange={handleInputChange}
+                min="0"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black"
+                placeholder="From"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-black mb-2">
+                Mileage To
+              </label>
+              <input
+                type="number"
+                name="mileageTo"
+                value={formData.mileageTo}
+                onChange={handleInputChange}
+                min="0"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black"
+                placeholder="To"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Message */}
+        <div>
+          <label className="block text-sm font-medium text-black mb-2">
+            Message *
+          </label>
+          <textarea
+            name="message"
+            value={formData.message}
+            onChange={handleInputChange}
+            required
+            rows="6"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black"
+            placeholder="Please provide any additional details about your inquiry, specific requirements, or questions you may have..."
+          ></textarea>
+        </div>
+
+        {/* Submit Buttons */}
         <div className="space-y-4 pt-6">
           <button
             type="submit"
