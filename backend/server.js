@@ -25,6 +25,7 @@ app.use('/api/dealers', require('./routes/dealerRoutes'));
 app.use('/api/agents', require('./routes/agentRoutes'));
 app.use('/api/inquiries', require('./routes/inquiryRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/product-requests', require('./routes/productRequestRoutes'));
 
 // Error handling middleware
 app.use(require('./middleware/errorHandler'));

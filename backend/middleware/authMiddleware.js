@@ -35,6 +35,14 @@ const authMiddleware = {
     }
   },
 
+  requireAdmin: (req, res, next) => {
+    if (req.user && req.user.role === 'admin') {
+      next();
+    } else {
+      res.status(403).json({ message: 'Not authorized as admin' });
+    }
+  },
+
   agent: (req, res, next) => {
     if (req.user && req.user.role === 'agent' && req.user.status === 'approved') {
       next();

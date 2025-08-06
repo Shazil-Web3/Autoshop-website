@@ -179,6 +179,82 @@ class ApiService {
     return this.handleResponse(response);
   }
 
+  // Product Request Methods
+
+  // Create a new product request (for dealers/agents)
+  async createProductRequest(requestData) {
+    const response = await fetch(`${this.baseURL}/product-requests`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify(requestData),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Get my product requests (for dealers/agents)
+  async getMyProductRequests(params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    const response = await fetch(`${this.baseURL}/product-requests/my-requests?${queryString}`, {
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Admin: Get all product requests
+  async getAllProductRequests(params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    const response = await fetch(`${this.baseURL}/product-requests/admin/all?${queryString}`, {
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Admin: Get pending requests count
+  async getPendingProductRequestsCount() {
+    const response = await fetch(`${this.baseURL}/product-requests/admin/pending-count`, {
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Admin: Get specific product request
+  async getProductRequestById(requestId) {
+    const response = await fetch(`${this.baseURL}/product-requests/admin/${requestId}`, {
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Admin: Approve product request
+  async approveProductRequest(requestId, adminNotes = '') {
+    const response = await fetch(`${this.baseURL}/product-requests/admin/${requestId}/approve`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({ adminNotes }),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Admin: Reject product request
+  async rejectProductRequest(requestId, rejectionReason, adminNotes = '') {
+    const response = await fetch(`${this.baseURL}/product-requests/admin/${requestId}/reject`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({ rejectionReason, adminNotes }),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Admin: Edit and approve product request
+  async editAndApproveProductRequest(requestId, productData, adminNotes = '') {
+    const response = await fetch(`${this.baseURL}/product-requests/admin/${requestId}/edit-approve`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({ productData, adminNotes }),
+    });
+    return this.handleResponse(response);
+  }
+
   // Check if user is authenticated
   isAuthenticated() {
     return !!localStorage.getItem('token');

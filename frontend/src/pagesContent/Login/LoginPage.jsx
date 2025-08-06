@@ -48,6 +48,19 @@ const LoginPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const getDashboardRoute = (user) => {
+    switch (user.role) {
+      case 'admin':
+        return '/admin';
+      case 'dealer':
+        return '/dealer';
+      case 'agent':
+        return '/agent';
+      default:
+        return '/';
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -68,11 +81,8 @@ const LoginPage = () => {
       alert('Login successful! Welcome back to Autexline.');
       
       // Redirect based on user role
-      if (response.user.role === 'admin') {
-        router.push('/admin/dashboard');
-      } else {
-        router.push('/'); // Redirect to home page for other users
-      }
+      const dashboardRoute = getDashboardRoute(response.user);
+      router.push(dashboardRoute);
     } catch (error) {
       console.error('Login error:', error);
       alert(error.message || 'Login failed. Please check your credentials and try again.');
@@ -98,7 +108,7 @@ const LoginPage = () => {
             {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email Address
+                Email address
               </label>
               <input
                 id="email"
@@ -108,11 +118,10 @@ const LoginPage = () => {
                 required
                 value={formData.email}
                 onChange={handleInputChange}
-                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.email ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
+                  errors.email ? 'border-red-300' : 'border-gray-300'
+                } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
                 placeholder="Enter your email"
-                style={{ color: 'black' }}
               />
               {errors.email && (
                 <p className="mt-1 text-sm text-red-600">{errors.email}</p>
@@ -132,18 +141,17 @@ const LoginPage = () => {
                 required
                 value={formData.password}
                 onChange={handleInputChange}
-                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                  errors.password ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
+                  errors.password ? 'border-red-300' : 'border-gray-300'
+                } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm`}
                 placeholder="Enter your password"
-                style={{ color: 'black' }}
               />
               {errors.password && (
                 <p className="mt-1 text-sm text-red-600">{errors.password}</p>
               )}
             </div>
 
-            {/* Remember Me and Forgot Password */}
+            {/* Remember Me */}
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input
@@ -165,27 +173,40 @@ const LoginPage = () => {
                 </a>
               </div>
             </div>
-          </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isSubmitting ? 'Signing in...' : 'Sign in'}
-            </button>
-          </div>
+            {/* Submit Button */}
+            <div>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? 'Signing in...' : 'Sign in'}
+              </button>
+            </div>
 
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
-              <span className="text-gray-500">
-                Check the footer for signup options
-              </span>
-            </p>
+            {/* Sign Up Link */}
+            <div className="text-center">
+              <p className="text-sm text-gray-600">
+                Don't have an account?{' '}
+                <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
+                  Sign up here
+                </Link>
+              </p>
+            </div>
           </div>
         </form>
+
+        {/* Test Account Information */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <h3 className="text-sm font-medium text-blue-900 mb-2">Test Accounts Available:</h3>
+          <div className="text-xs text-blue-700 space-y-1">
+            <p><strong>Admin:</strong> admin@autoshop.com / admin123</p>
+            <p><strong>Dealer:</strong> dealer@autoshop.com / dealer123</p>
+            <p><strong>Agent:</strong> agent@autoshop.com / agent123</p>
+            <p><strong>User:</strong> user@autoshop.com / user123</p>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -8,18 +8,16 @@ import {
   ChartBarIcon, 
   UserGroupIcon, 
   CogIcon,
-  CheckCircleIcon,
-  XCircleIcon,
-  EyeIcon,
-  PencilIcon,
-  TrashIcon
+  DocumentTextIcon,
+  TruckIcon,
+  WrenchScrewdriverIcon,
+  ClipboardDocumentListIcon
 } from '@heroicons/react/24/outline';
 
 const AdminPage = () => {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState('dashboard');
   const [pendingApplications, setPendingApplications] = useState([]);
-  const [allUsers, setAllUsers] = useState([]);
+  const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -36,12 +34,12 @@ const AdminPage = () => {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const [applications, users] = await Promise.all([
+      const [applications, pendingCount] = await Promise.all([
         apiService.getPendingApplications(),
-        apiService.getAllUsers()
+        apiService.getPendingProductRequestsCount()
       ]);
       setPendingApplications(applications);
-      setAllUsers(users);
+      setPendingRequestsCount(pendingCount.pendingCount || 0);
     } catch (error) {
       console.error('Error loading data:', error);
       setMessage('Error loading data');
@@ -50,69 +48,32 @@ const AdminPage = () => {
     }
   };
 
-  const handleApprove = async (userId, agentId = null) => {
-    try {
-      await apiService.approveApplication({ userId, agentId });
-      setMessage('Application approved successfully');
-      loadData();
-    } catch (error) {
-      setMessage('Error approving application');
-    }
-  };
-
-  const handleReject = async (userId, rejectionReason) => {
-    try {
-      await apiService.rejectApplication({ userId, rejectionReason });
-      setMessage('Application rejected successfully');
-      loadData();
-    } catch (error) {
-      setMessage('Error rejecting application');
-    }
-  };
-
-  const handleSuspend = async (userId) => {
-    try {
-      await apiService.suspendUser(userId);
-      setMessage('User suspended successfully');
-      loadData();
-    } catch (error) {
-      setMessage('Error suspending user');
-    }
-  };
-
-  const handleActivate = async (userId) => {
-    try {
-      await apiService.activateUser(userId);
-      setMessage('User activated successfully');
-      loadData();
-    } catch (error) {
-      setMessage('Error activating user');
-    }
-  };
-
   const adminCards = [
+    {
+      id: 'product-requests',
+      title: 'Product Requests',
+      description: `Manage ${pendingRequestsCount} pending product requests from dealers`,
+      icon: DocumentTextIcon,
+      color: 'bg-blue-500',
+      href: '/admin/product-requests',
+      count: pendingRequestsCount
+    },
     {
       id: 'dashboard',
       title: 'Dashboard Overview',
       description: 'View all products and system statistics',
       icon: ChartBarIcon,
-      color: 'bg-blue-500',
-      href: '/admin/dashboard'
-    },
-    {
-      id: 'add-product',
-      title: 'Add New Product',
-      description: 'Add new products to the inventory',
-      icon: PlusIcon,
       color: 'bg-green-500',
-      href: '/admin/add-product'
+      href: '/admin/dashboard'
     },
     {
       id: 'account-requests',
       title: 'Account Requests',
-      description: 'Review and approve agent/dealer applications',
+      description: `Review and approve ${pendingApplications.length} agent/dealer applications`,
       icon: UserGroupIcon,
-      color: 'bg-yellow-500'
+      color: 'bg-yellow-500',
+      href: '/admin/account-requests',
+      count: pendingApplications.length
     },
     {
       id: 'product-management',
@@ -120,260 +81,9 @@ const AdminPage = () => {
       description: 'Edit, delete, and manage existing products',
       icon: CogIcon,
       color: 'bg-purple-500',
-      href: '/admin/dashboard'
+      href: '/admin/product-management'
     }
   ];
-
-  const renderDashboard = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      {adminCards.map((card) => (
-        <div
-          key={card.id}
-          className={`bg-white rounded-lg shadow-sm p-6 cursor-pointer transition-all hover:shadow-md ${
-            activeTab === card.id ? 'ring-2 ring-blue-500' : ''
-          }`}
-          onClick={() => {
-            if (card.href) {
-              router.push(card.href);
-            } else {
-              setActiveTab(card.id);
-            }
-          }}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">{card.title}</h3>
-              <p className="text-sm text-gray-600 mt-1">{card.description}</p>
-            </div>
-            <div className={`p-3 rounded-lg ${card.color}`}>
-              <card.icon className="w-6 h-6 text-white" />
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-
-  const renderAccountRequests = () => (
-    <div className="bg-white rounded-lg shadow-sm">
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-900">
-          Pending Account Applications ({pendingApplications.length})
-        </h2>
-      </div>
-      
-      {isLoading ? (
-        <div className="p-8 text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Loading applications...</p>
-        </div>
-      ) : pendingApplications.length === 0 ? (
-        <div className="p-8 text-center">
-          <UserGroupIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No pending applications</h3>
-          <p className="text-gray-600">All applications have been processed.</p>
-        </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Applicant
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Role
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Contact
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Location
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Documents
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {pendingApplications.map((application) => (
-                <tr key={application._id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">
-                        {application.firstName} {application.lastName}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {application.loginId}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      application.role === 'agent' 
-                        ? 'bg-blue-100 text-blue-800' 
-                        : 'bg-green-100 text-green-800'
-                    }`}>
-                      {application.role}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{application.email}</div>
-                    <div className="text-sm text-gray-500">{application.phone}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{application.city}</div>
-                    <div className="text-sm text-gray-500">{application.county}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {application.fileUploadUrl ? (
-                      <a
-                        href={application.fileUploadUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-900 text-sm"
-                      >
-                        View Document
-                      </a>
-                    ) : (
-                      <span className="text-gray-400 text-sm">No document</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex items-center justify-end space-x-2">
-                      <button
-                        onClick={() => handleApprove(application._id, application.role === 'agent' ? `AG${Date.now()}` : null)}
-                        className="text-green-600 hover:text-green-900 p-1"
-                        title="Approve"
-                      >
-                        <CheckCircleIcon className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          const reason = prompt('Enter rejection reason:');
-                          if (reason) handleReject(application._id, reason);
-                        }}
-                        className="text-red-600 hover:text-red-900 p-1"
-                        title="Reject"
-                      >
-                        <XCircleIcon className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
-  );
-
-  const renderUserManagement = () => (
-    <div className="bg-white rounded-lg shadow-sm">
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-900">
-          User Management ({allUsers.length})
-        </h2>
-      </div>
-      
-      {isLoading ? (
-        <div className="p-8 text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Loading users...</p>
-        </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  User
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Role
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Contact
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {allUsers.map((user) => (
-                <tr key={user._id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">
-                        {user.firstName} {user.lastName}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {user.loginId || user.email}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      user.role === 'admin' ? 'bg-red-100 text-red-800' :
-                      user.role === 'agent' ? 'bg-blue-100 text-blue-800' :
-                      user.role === 'dealer' ? 'bg-green-100 text-green-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      user.status === 'active' ? 'bg-green-100 text-green-800' :
-                      user.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                      user.status === 'approved' ? 'bg-blue-100 text-blue-800' :
-                      user.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {user.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{user.email}</div>
-                    <div className="text-sm text-gray-500">{user.phone}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <div className="flex items-center justify-end space-x-2">
-                      {user.status === 'suspended' ? (
-                        <button
-                          onClick={() => handleActivate(user._id)}
-                          className="text-green-600 hover:text-green-900 p-1"
-                          title="Activate"
-                        >
-                          <CheckCircleIcon className="w-4 h-4" />
-                        </button>
-                      ) : user.role !== 'admin' ? (
-                        <button
-                          onClick={() => handleSuspend(user._id)}
-                          className="text-red-600 hover:text-red-900 p-1"
-                          title="Suspend"
-                        >
-                          <XCircleIcon className="w-4 h-4" />
-                        </button>
-                      ) : null}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -382,8 +92,8 @@ const AdminPage = () => {
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Admin Panel</h1>
-              <p className="text-gray-600 mt-2">Manage your AutoShop system</p>
+              <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+              <p className="text-gray-600 mt-2">Welcome to the AutoShop administration panel</p>
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-500">
@@ -416,10 +126,93 @@ const AdminPage = () => {
           )}
         </div>
 
-        {/* Main Content */}
-        {activeTab === 'dashboard' && renderDashboard()}
-        {activeTab === 'account-requests' && renderAccountRequests()}
-        {activeTab === 'user-management' && renderUserManagement()}
+        {/* Navigation Instructions */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+          <div className="flex items-center space-x-3">
+            <div className="bg-blue-100 p-2 rounded-full">
+              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <h3 className="text-lg font-medium text-blue-900">Navigation Instructions</h3>
+              <p className="text-blue-700 mt-1">Click on any of the cards below to navigate to the respective admin section</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Dashboard Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {adminCards.map((card) => (
+            <Link
+              key={card.id}
+              href={card.href}
+              className="bg-white rounded-lg shadow-sm p-6 cursor-pointer transition-all hover:shadow-md hover:scale-105 border border-gray-200 hover:border-blue-300"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className={`p-3 rounded-lg ${card.color}`}>
+                  <card.icon className="w-8 h-8 text-white" />
+                </div>
+                {card.count !== undefined && card.count > 0 && (
+                  <div className="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    {card.count}
+                  </div>
+                )}
+              </div>
+              
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">{card.title}</h3>
+                <p className="text-sm text-gray-600 mb-4">{card.description}</p>
+                
+                <div className="flex items-center text-blue-600 text-sm font-medium">
+                  <span>Click to access</span>
+                  <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* Quick Stats */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <DocumentTextIcon className="w-6 h-6 text-blue-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Pending Products</p>
+                <p className="text-2xl font-semibold text-gray-900">{pendingRequestsCount}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center">
+              <div className="p-2 bg-yellow-100 rounded-lg">
+                <UserGroupIcon className="w-6 h-6 text-yellow-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Pending Applications</p>
+                <p className="text-2xl font-semibold text-gray-900">{pendingApplications.length}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center">
+              <div className="p-2 bg-green-100 rounded-lg">
+                <ChartBarIcon className="w-6 h-6 text-green-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">Total Users</p>
+                <p className="text-2xl font-semibold text-gray-900">-</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
