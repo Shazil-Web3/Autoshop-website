@@ -59,7 +59,7 @@ const Header = () => {
                   href="/signup" 
                   className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
                 >
-                  Register
+                  Sign Up
                 </a>
                 <a 
                   href="/login" 
@@ -139,7 +139,7 @@ const Header = () => {
                     href="/signup" 
                     className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium text-center text-sm"
                   >
-                    Register
+                    Sign Up
                   </a>
                   <a 
                     href="/login" 

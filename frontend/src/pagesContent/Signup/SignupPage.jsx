@@ -8,8 +8,7 @@ const SignupPage = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'user', // Default role
-    company: '',
+    role: 'user', // Fixed role for user signup
     agreeToTerms: false
   });
 
@@ -54,12 +53,6 @@ const SignupPage = () => {
       newErrors.confirmPassword = 'Passwords do not match';
     }
 
-    if (formData.role === 'agent' || formData.role === 'dealer') {
-      if (!formData.company.trim()) {
-        newErrors.company = 'Company name is required for agents and dealers';
-      }
-    }
-
     if (!formData.agreeToTerms) {
       newErrors.agreeToTerms = 'You must agree to the terms and conditions';
     }
@@ -86,7 +79,7 @@ const SignupPage = () => {
             Create your account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Join Autexline and start your automotive journey
+            Join Autexline as a user and start your automotive journey
           </p>
         </div>
 
@@ -137,50 +130,6 @@ const SignupPage = () => {
                 <p className="mt-1 text-sm text-red-600">{errors.email}</p>
               )}
             </div>
-
-            {/* Role Selection */}
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-                Account Type *
-              </label>
-              <select
-                id="role"
-                name="role"
-                value={formData.role}
-                onChange={handleInputChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                style={{ color: 'black' }}
-              >
-                <option value="user">User</option>
-                <option value="agent">Agent</option>
-                <option value="dealer">Dealer</option>
-              </select>
-            </div>
-
-            {/* Company Name (for Agent/Dealer) */}
-            {(formData.role === 'agent' || formData.role === 'dealer') && (
-              <div>
-                <label htmlFor="company" className="block text-sm font-medium text-gray-700">
-                  Company Name *
-                </label>
-                <input
-                  id="company"
-                  name="company"
-                  type="text"
-                  required
-                  value={formData.company}
-                  onChange={handleInputChange}
-                  className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.company ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="Your Company Name"
-                  style={{ color: 'black' }}
-                />
-                {errors.company && (
-                  <p className="mt-1 text-sm text-red-600">{errors.company}</p>
-                )}
-              </div>
-            )}
 
             {/* Password */}
             <div>
