@@ -1,8 +1,11 @@
 "use client";
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import apiService from '../../services/api';
 
 const DealerSignupPage = () => {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -21,6 +24,7 @@ const DealerSignupPage = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked, files } = e.target;
@@ -101,13 +105,27 @@ const DealerSignupPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (validateForm()) {
-      console.log('Dealer signup form submitted:', formData);
-      // Here you would typically send the data to your backend
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const { confirmPassword, agreeToTerms, ...registrationData } = formData;
+      
+      const response = await apiService.registerDealer(registrationData);
+      
       alert('Dealer account application submitted successfully! Your application will be reviewed by admin for approval.');
+      router.push('/login'); // Redirect to login page
+    } catch (error) {
+      console.error('Registration error:', error);
+      alert(error.message || 'Registration failed. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -436,9 +454,10 @@ const DealerSignupPage = () => {
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              disabled={isSubmitting}
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Submit Dealer Application
+              {isSubmitting ? 'Submitting Application...' : 'Submit Dealer Application'}
             </button>
           </div>
 

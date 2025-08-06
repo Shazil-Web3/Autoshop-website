@@ -1,8 +1,11 @@
 "use client";
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import apiService from '../../services/api';
 
 const AgentSignupPage = () => {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -19,6 +22,7 @@ const AgentSignupPage = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked, files } = e.target;
@@ -91,13 +95,27 @@ const AgentSignupPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (validateForm()) {
-      console.log('Agent signup form submitted:', formData);
-      // Here you would typically send the data to your backend
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const { confirmPassword, agreeToTerms, ...registrationData } = formData;
+      
+      const response = await apiService.registerAgent(registrationData);
+      
       alert('Agent account application submitted successfully! Your application will be reviewed by admin for approval. After approval, admin will generate your Agent ID.');
+      router.push('/login'); // Redirect to login page
+    } catch (error) {
+      console.error('Registration error:', error);
+      alert(error.message || 'Registration failed. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -381,9 +399,10 @@ const AgentSignupPage = () => {
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              disabled={isSubmitting}
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Submit Agent Application
+              {isSubmitting ? 'Submitting Application...' : 'Submit Agent Application'}
             </button>
           </div>
 

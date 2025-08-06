@@ -1,8 +1,11 @@
 "use client";
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import apiService from '../../services/api';
 
 const LoginPage = () => {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -10,6 +13,7 @@ const LoginPage = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -44,13 +48,36 @@ const LoginPage = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (validateForm()) {
-      console.log('Login attempt:', formData);
-      // Here you would typically send the data to your backend
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const { rememberMe, ...loginData } = formData;
+      
+      const response = await apiService.login(loginData);
+      
+      // Set auth data in localStorage
+      apiService.setAuthData(response);
+      
       alert('Login successful! Welcome back to Autexline.');
+      
+      // Redirect based on user role
+      if (response.user.role === 'admin') {
+        router.push('/admin/dashboard');
+      } else {
+        router.push('/'); // Redirect to home page for other users
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      alert(error.message || 'Login failed. Please check your credentials and try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -143,9 +170,10 @@ const LoginPage = () => {
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+              disabled={isSubmitting}
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Sign in
+              {isSubmitting ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
 

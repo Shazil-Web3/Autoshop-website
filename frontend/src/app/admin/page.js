@@ -1,528 +1,425 @@
 "use client";
-import { useState } from 'react';
-import { useGlobalState } from '../../context/GlobalStateContext';
-import { PlusIcon, XMarkIcon, PhotoIcon } from '@heroicons/react/24/outline';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import apiService from '../../services/api';
+import { 
+  PlusIcon, 
+  ChartBarIcon, 
+  UserGroupIcon, 
+  CogIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  EyeIcon,
+  PencilIcon,
+  TrashIcon
+} from '@heroicons/react/24/outline';
 
 const AdminPage = () => {
-  const { addProduct } = useGlobalState();
-  const [formData, setFormData] = useState({
-    category: 'stockCars',
-    title: '',
-    price: '',
-    totalPrice: '',
-    image: '/4.jpg', // Default image
-    stockNo: '',
-    mileage: '',
-    year: '',
-    engine: '',
-    transmission: '',
-    location: '',
-    color: '',
-    fuel: '',
-    drive: '',
-    seats: '',
-    doors: '',
-    features: [],
-    condition: '',
-    capacity: ''
-  });
-  const [newFeature, setNewFeature] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [pendingApplications, setPendingApplications] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
-  const categories = [
-    { value: 'stockCars', label: 'Stock Cars', icon: '🚗' },
-    { value: 'salvageVehicles', label: 'Salvage Vehicles', icon: '🚛' },
-    { value: 'constructionMachinery', label: 'Construction Machinery', icon: '🏗️' },
-    { value: 'bikes', label: 'Motorcycles', icon: '🏍️' }
+  // Check if user is admin
+  useEffect(() => {
+    const user = apiService.getCurrentUser();
+    if (!user || user.role !== 'admin') {
+      router.push('/login');
+      return;
+    }
+    loadData();
+  }, [router]);
+
+  const loadData = async () => {
+    setIsLoading(true);
+    try {
+      const [applications, users] = await Promise.all([
+        apiService.getPendingApplications(),
+        apiService.getAllUsers()
+      ]);
+      setPendingApplications(applications);
+      setAllUsers(users);
+    } catch (error) {
+      console.error('Error loading data:', error);
+      setMessage('Error loading data');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleApprove = async (userId, agentId = null) => {
+    try {
+      await apiService.approveApplication({ userId, agentId });
+      setMessage('Application approved successfully');
+      loadData();
+    } catch (error) {
+      setMessage('Error approving application');
+    }
+  };
+
+  const handleReject = async (userId, rejectionReason) => {
+    try {
+      await apiService.rejectApplication({ userId, rejectionReason });
+      setMessage('Application rejected successfully');
+      loadData();
+    } catch (error) {
+      setMessage('Error rejecting application');
+    }
+  };
+
+  const handleSuspend = async (userId) => {
+    try {
+      await apiService.suspendUser(userId);
+      setMessage('User suspended successfully');
+      loadData();
+    } catch (error) {
+      setMessage('Error suspending user');
+    }
+  };
+
+  const handleActivate = async (userId) => {
+    try {
+      await apiService.activateUser(userId);
+      setMessage('User activated successfully');
+      loadData();
+    } catch (error) {
+      setMessage('Error activating user');
+    }
+  };
+
+  const adminCards = [
+    {
+      id: 'dashboard',
+      title: 'Dashboard Overview',
+      description: 'View all products and system statistics',
+      icon: ChartBarIcon,
+      color: 'bg-blue-500',
+      href: '/admin/dashboard'
+    },
+    {
+      id: 'add-product',
+      title: 'Add New Product',
+      description: 'Add new products to the inventory',
+      icon: PlusIcon,
+      color: 'bg-green-500',
+      href: '/admin/add-product'
+    },
+    {
+      id: 'account-requests',
+      title: 'Account Requests',
+      description: 'Review and approve agent/dealer applications',
+      icon: UserGroupIcon,
+      color: 'bg-yellow-500'
+    },
+    {
+      id: 'product-management',
+      title: 'Product Management',
+      description: 'Edit, delete, and manage existing products',
+      icon: CogIcon,
+      color: 'bg-purple-500',
+      href: '/admin/dashboard'
+    }
   ];
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  const renderDashboard = () => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {adminCards.map((card) => (
+        <div
+          key={card.id}
+          className={`bg-white rounded-lg shadow-sm p-6 cursor-pointer transition-all hover:shadow-md ${
+            activeTab === card.id ? 'ring-2 ring-blue-500' : ''
+          }`}
+          onClick={() => {
+            if (card.href) {
+              router.push(card.href);
+            } else {
+              setActiveTab(card.id);
+            }
+          }}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900">{card.title}</h3>
+              <p className="text-sm text-gray-600 mt-1">{card.description}</p>
+            </div>
+            <div className={`p-3 rounded-lg ${card.color}`}>
+              <card.icon className="w-6 h-6 text-white" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
-  const addFeature = () => {
-    if (newFeature.trim() && !formData.features.includes(newFeature.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        features: [...prev.features, newFeature.trim()]
-      }));
-      setNewFeature('');
-    }
-  };
-
-  const removeFeature = (index) => {
-    setFormData(prev => ({
-      ...prev,
-      features: prev.features.filter((_, i) => i !== index)
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      // Clean up the data
-      const cleanData = {
-        ...formData,
-        features: formData.features.filter(f => f.trim()),
-        price: formData.price.startsWith('$') ? formData.price : `$${formData.price}`,
-        totalPrice: formData.totalPrice.startsWith('$') ? formData.totalPrice : `$${formData.totalPrice}`
-      };
-
-      addProduct(formData.category, cleanData);
+  const renderAccountRequests = () => (
+    <div className="bg-white rounded-lg shadow-sm">
+      <div className="px-6 py-4 border-b border-gray-200">
+        <h2 className="text-xl font-semibold text-gray-900">
+          Pending Account Applications ({pendingApplications.length})
+        </h2>
+      </div>
       
-      // Reset form
-      setFormData({
-        category: 'stockCars',
-        title: '',
-        price: '',
-        totalPrice: '',
-        image: '/4.jpg',
-        stockNo: '',
-        mileage: '',
-        year: '',
-        engine: '',
-        transmission: '',
-        location: '',
-        color: '',
-        fuel: '',
-        drive: '',
-        seats: '',
-        doors: '',
-        features: [],
-        condition: '',
-        capacity: ''
-      });
+      {isLoading ? (
+        <div className="p-8 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Loading applications...</p>
+        </div>
+      ) : pendingApplications.length === 0 ? (
+        <div className="p-8 text-center">
+          <UserGroupIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No pending applications</h3>
+          <p className="text-gray-600">All applications have been processed.</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Applicant
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Role
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Contact
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Location
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Documents
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {pendingApplications.map((application) => (
+                <tr key={application._id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {application.firstName} {application.lastName}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {application.loginId}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      application.role === 'agent' 
+                        ? 'bg-blue-100 text-blue-800' 
+                        : 'bg-green-100 text-green-800'
+                    }`}>
+                      {application.role}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">{application.email}</div>
+                    <div className="text-sm text-gray-500">{application.phone}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">{application.city}</div>
+                    <div className="text-sm text-gray-500">{application.county}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {application.fileUploadUrl ? (
+                      <a
+                        href={application.fileUploadUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-900 text-sm"
+                      >
+                        View Document
+                      </a>
+                    ) : (
+                      <span className="text-gray-400 text-sm">No document</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div className="flex items-center justify-end space-x-2">
+                      <button
+                        onClick={() => handleApprove(application._id, application.role === 'agent' ? `AG${Date.now()}` : null)}
+                        className="text-green-600 hover:text-green-900 p-1"
+                        title="Approve"
+                      >
+                        <CheckCircleIcon className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          const reason = prompt('Enter rejection reason:');
+                          if (reason) handleReject(application._id, reason);
+                        }}
+                        className="text-red-600 hover:text-red-900 p-1"
+                        title="Reject"
+                      >
+                        <XCircleIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+
+  const renderUserManagement = () => (
+    <div className="bg-white rounded-lg shadow-sm">
+      <div className="px-6 py-4 border-b border-gray-200">
+        <h2 className="text-xl font-semibold text-gray-900">
+          User Management ({allUsers.length})
+        </h2>
+      </div>
       
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
-    } catch (error) {
-      console.error('Error adding product:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+      {isLoading ? (
+        <div className="p-8 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Loading users...</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  User
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Role
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Contact
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {allUsers.map((user) => (
+                <tr key={user._id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {user.firstName} {user.lastName}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {user.loginId || user.email}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      user.role === 'admin' ? 'bg-red-100 text-red-800' :
+                      user.role === 'agent' ? 'bg-blue-100 text-blue-800' :
+                      user.role === 'dealer' ? 'bg-green-100 text-green-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {user.role}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      user.status === 'active' ? 'bg-green-100 text-green-800' :
+                      user.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                      user.status === 'approved' ? 'bg-blue-100 text-blue-800' :
+                      user.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {user.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">{user.email}</div>
+                    <div className="text-sm text-gray-500">{user.phone}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div className="flex items-center justify-end space-x-2">
+                      {user.status === 'suspended' ? (
+                        <button
+                          onClick={() => handleActivate(user._id)}
+                          className="text-green-600 hover:text-green-900 p-1"
+                          title="Activate"
+                        >
+                          <CheckCircleIcon className="w-4 h-4" />
+                        </button>
+                      ) : user.role !== 'admin' ? (
+                        <button
+                          onClick={() => handleSuspend(user._id)}
+                          className="text-red-600 hover:text-red-900 p-1"
+                          title="Suspend"
+                        >
+                          <XCircleIcon className="w-4 h-4" />
+                        </button>
+                      ) : null}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-3">
-              <div className="bg-blue-600 p-2 rounded-lg">
-                <PlusIcon className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">Add New Product</h1>
-                <p className="text-gray-600">Add a new product to the inventory</p>
-              </div>
-            </div>
-            <Link 
-              href="/admin/dashboard"
-              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-              <span>Dashboard</span>
-            </Link>
-          </div>
-        </div>
-
-        {/* Success Message */}
-        {showSuccess && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-            <div className="flex items-center space-x-2">
-              <div className="bg-green-100 p-1 rounded-full">
-                <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <span className="text-green-800 font-medium">Product added successfully!</span>
-            </div>
-          </div>
-        )}
-
-        {/* Form */}
-        <div className="bg-white rounded-lg shadow-sm">
-          <form onSubmit={handleSubmit} className="p-6 space-y-8">
-            {/* Category Selection */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
-                Product Category *
-              </label>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                {categories.map((category) => (
-                  <label
-                    key={category.value}
-                    className={`relative flex flex-col items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                      formData.category === category.value
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="category"
-                      value={category.value}
-                      checked={formData.category === category.value}
-                      onChange={handleInputChange}
-                      className="sr-only"
-                    />
-                    <span className="text-2xl mb-2">{category.icon}</span>
-                    <span className="text-sm font-medium text-gray-900 text-center">
-                      {category.label}
-                    </span>
-                  </label>
-                ))}
-              </div>
+              <h1 className="text-3xl font-bold text-gray-900">Admin Panel</h1>
+              <p className="text-gray-600 mt-2">Manage your AutoShop system</p>
             </div>
-
-            {/* Basic Information */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-black mb-2">
-                  Product Title *
-                </label>
-                <input
-                  type="text"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
-                  placeholder="e.g., 2018 KIA STINGER / SMART KEY, BACK CAMERA"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-black mb-2">
-                  Stock Number *
-                </label>
-                <input
-                  type="text"
-                  name="stockNo"
-                  value={formData.stockNo}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
-                  placeholder="e.g., BW803567"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-black mb-2">
-                  Price *
-                </label>
-                <input
-                  type="text"
-                  name="price"
-                  value={formData.price}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
-                  placeholder="e.g., 10,330"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-black mb-2">
-                  Total Price *
-                </label>
-                <input
-                  type="text"
-                  name="totalPrice"
-                  value={formData.totalPrice}
-                  onChange={handleInputChange}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
-                  placeholder="e.g., 12,464"
-                />
-              </div>
-            </div>
-
-            {/* Specifications */}
-            <div>
-              <h3 className="text-lg font-medium text-black mb-4">Specifications</h3>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">
-                    Year *
-                  </label>
-                  <input
-                    type="text"
-                    name="year"
-                    value={formData.year}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
-                    placeholder="e.g., 2018"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">
-                    Mileage/Hours *
-                  </label>
-                  <input
-                    type="text"
-                    name="mileage"
-                    value={formData.mileage}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
-                    placeholder="e.g., 162,182 km"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">
-                    Engine *
-                  </label>
-                  <input
-                    type="text"
-                    name="engine"
-                    value={formData.engine}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
-                    placeholder="e.g., 3,342cc"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">
-                    Transmission *
-                  </label>
-                  <input
-                    type="text"
-                    name="transmission"
-                    value={formData.transmission}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
-                    placeholder="e.g., AT"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">
-                    Location *
-                  </label>
-                  <input
-                    type="text"
-                    name="location"
-                    value={formData.location}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
-                    placeholder="e.g., Korea"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">
-                    Color *
-                  </label>
-                  <input
-                    type="text"
-                    name="color"
-                    value={formData.color}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
-                    placeholder="e.g., Gray"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">
-                    Fuel Type *
-                  </label>
-                  <input
-                    type="text"
-                    name="fuel"
-                    value={formData.fuel}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
-                    placeholder="e.g., Petrol"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">
-                    Drive Type
-                  </label>
-                  <input
-                    type="text"
-                    name="drive"
-                    value={formData.drive}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
-                    placeholder="e.g., 4WD"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">
-                    Seats
-                  </label>
-                  <input
-                    type="text"
-                    name="seats"
-                    value={formData.seats}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
-                    placeholder="e.g., 5"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">
-                    Doors
-                  </label>
-                  <input
-                    type="text"
-                    name="doors"
-                    value={formData.doors}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
-                    placeholder="e.g., 4"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">
-                    Capacity (for machinery)
-                  </label>
-                  <input
-                    type="text"
-                    name="capacity"
-                    value={formData.capacity}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
-                    placeholder="e.g., 20 tons"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-black mb-2">
-                    Condition
-                  </label>
-                  <input
-                    type="text"
-                    name="condition"
-                    value={formData.condition}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
-                    placeholder="e.g., Excellent working condition"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Image URL */}
-            <div>
-              <label className="block text-sm font-medium text-black mb-2">
-                Image URL
-              </label>
-              <div className="flex items-center space-x-3">
-                <PhotoIcon className="w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  name="image"
-                  value={formData.image}
-                  onChange={handleInputChange}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
-                  placeholder="e.g., /4.jpg"
-                />
-              </div>
-            </div>
-
-            {/* Features */}
-            <div>
-              <label className="block text-sm font-medium text-black mb-3">
-                Features
-              </label>
-              <div className="space-y-3">
-                <div className="flex space-x-2">
-                  <input
-                    type="text"
-                    value={newFeature}
-                    onChange={(e) => setNewFeature(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addFeature())}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
-                    placeholder="Add a feature (e.g., Power Steering)"
-                  />
-                  <button
-                    type="button"
-                    onClick={addFeature}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                  >
-                    Add
-                  </button>
-                </div>
-                
-                {formData.features.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {formData.features.map((feature, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
-                      >
-                        {feature}
-                        <button
-                          type="button"
-                          onClick={() => removeFeature(index)}
-                          className="ml-2 text-blue-600 hover:text-blue-800"
-                        >
-                          <XMarkIcon className="w-4 h-4" />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <div className="flex justify-end space-x-4 pt-6 border-t">
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-500">
+                Welcome, {apiService.getCurrentUser()?.firstName || 'Admin'}
+              </span>
               <button
-                type="button"
-                onClick={() => window.history.back()}
-                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors"
+                onClick={() => {
+                  apiService.logout();
+                  router.push('/login');
+                }}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
               >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
-              >
-                {isSubmitting ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Adding...</span>
-                  </>
-                ) : (
-                  <>
-                    <PlusIcon className="w-4 h-4" />
-                    <span>Add Product</span>
-                  </>
-                )}
+                Logout
               </button>
             </div>
-          </form>
+          </div>
+
+          {/* Message */}
+          {message && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+              <div className="flex items-center space-x-2">
+                <div className="bg-blue-100 p-1 rounded-full">
+                  <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <span className="text-blue-800 font-medium">{message}</span>
+              </div>
+            </div>
+          )}
         </div>
+
+        {/* Main Content */}
+        {activeTab === 'dashboard' && renderDashboard()}
+        {activeTab === 'account-requests' && renderAccountRequests()}
+        {activeTab === 'user-management' && renderUserManagement()}
       </div>
     </div>
   );
