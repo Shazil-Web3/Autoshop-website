@@ -1,7 +1,8 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Search, Phone, ShoppingCart, Heart, User, Menu, X, LogOut } from 'lucide-react';
+import { Search, Phone, ShoppingCart, Heart, User, Menu, X, LogOut, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import FilterModal from './FilterModal';
 import apiService from '../services/api';
 
@@ -9,21 +10,82 @@ const Header = () => {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [isHowToBuyDropdownOpen, setIsHowToBuyDropdownOpen] = useState(false);
+  const [isInventoryDropdownOpen, setIsInventoryDropdownOpen] = useState(false);
+  const [howToBuyTimeout, setHowToBuyTimeout] = useState(null);
+  const [inventoryTimeout, setInventoryTimeout] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
     const user = apiService.getCurrentUser();
     setCurrentUser(user);
-  }, []);
+
+    // Listen for login/logout events
+    const handleStorageChange = () => {
+      const user = apiService.getCurrentUser();
+      setCurrentUser(user);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('userLogin', handleStorageChange);
+    window.addEventListener('userLogout', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('userLogin', handleStorageChange);
+      window.removeEventListener('userLogout', handleStorageChange);
+      
+      // Cleanup timeouts
+      if (howToBuyTimeout) clearTimeout(howToBuyTimeout);
+      if (inventoryTimeout) clearTimeout(inventoryTimeout);
+    };
+  }, [howToBuyTimeout, inventoryTimeout]);
 
   const handleLogout = () => {
     apiService.logout();
     setCurrentUser(null);
+    // Dispatch custom event for header update
+    window.dispatchEvent(new Event('userLogout'));
     window.location.href = '/';
+  };
+
+  const handleInventorySectionClick = (section) => {
+    // Navigate to inventory page with section parameter
+    router.push(`/inventory?section=${section}`);
+  };
+
+  const handleHowToBuyMouseEnter = () => {
+    if (howToBuyTimeout) {
+      clearTimeout(howToBuyTimeout);
+      setHowToBuyTimeout(null);
+    }
+    setIsHowToBuyDropdownOpen(true);
+  };
+
+  const handleHowToBuyMouseLeave = () => {
+    const timeout = setTimeout(() => {
+      setIsHowToBuyDropdownOpen(false);
+    }, 150);
+    setHowToBuyTimeout(timeout);
+  };
+
+  const handleInventoryMouseEnter = () => {
+    if (inventoryTimeout) {
+      clearTimeout(inventoryTimeout);
+      setInventoryTimeout(null);
+    }
+    setIsInventoryDropdownOpen(true);
+  };
+
+  const handleInventoryMouseLeave = () => {
+    const timeout = setTimeout(() => {
+      setIsInventoryDropdownOpen(false);
+    }, 150);
+    setInventoryTimeout(timeout);
   };
 
   const isDealerOrAgent = currentUser && ['dealer', 'agent'].includes(currentUser.role) && currentUser.status === 'approved';
 
-  // Function to get the appropriate dashboard link based on user role
   const getDashboardLink = () => {
     if (!currentUser) return null;
     
@@ -100,7 +162,7 @@ const Header = () => {
                       </div>
                     </div>
                     
-                    {/* Dashboard link - updated to use role-based navigation */}
+                    {/* Dashboard link */}
                     {dashboardLink && (
                       <Link
                         href={dashboardLink}
@@ -204,10 +266,88 @@ const Header = () => {
               <nav className="hidden md:flex items-center space-x-8">
                 <a href="/" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">HOME</a>
                 <a href="/about" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">ABOUT</a>
-                <a href="/inventory" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">INVENTORY</a>
+                
+                {/* Inventory Dropdown */}
+                <div 
+                  className="relative"
+                  onMouseEnter={handleInventoryMouseEnter}
+                  onMouseLeave={handleInventoryMouseLeave}
+                >
+                  <button className="text-gray-700 hover:text-blue-600 font-medium transition-colors flex items-center space-x-1">
+                    <span>INVENTORY</span>
+                    <ChevronDown className="w-4 h-4" />
+                  </button>
+                  
+                  {/* Inventory Dropdown Menu */}
+                  {isInventoryDropdownOpen && (
+                    <div className="absolute top-full left-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                      <a 
+                        href="/inventory" 
+                        className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors border-b border-gray-100"
+                      >
+                        All Inventory
+                      </a>
+                      <button 
+                        onClick={() => handleInventorySectionClick('stockCars')}
+                        className="w-full text-left block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors border-b border-gray-100"
+                      >
+                        🚗 Stock Cars
+                      </button>
+                      <button 
+                        onClick={() => handleInventorySectionClick('salvageVehicles')}
+                        className="w-full text-left block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors border-b border-gray-100"
+                      >
+                        🚛 Salvage Vehicles
+                      </button>
+                      <button 
+                        onClick={() => handleInventorySectionClick('constructionMachinery')}
+                        className="w-full text-left block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors border-b border-gray-100"
+                      >
+                        🏗️ Construction Machinery
+                      </button>
+                      <button 
+                        onClick={() => handleInventorySectionClick('bikes')}
+                        className="w-full text-left block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors"
+                      >
+                        🏍️ Motorcycles
+                      </button>
+                    </div>
+                  )}
+                </div>
+                
                 <a href="/inventory/parts" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">AUTO PARTS</a>
                 <a href="/auctions" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">AUCTIONS</a>
-                <a href="/buy-from-stock" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">HOW TO BUY</a>
+                
+                {/* How to Buy Dropdown */}
+                <div 
+                  className="relative"
+                  onMouseEnter={handleHowToBuyMouseEnter}
+                  onMouseLeave={handleHowToBuyMouseLeave}
+                >
+                  <button className="text-gray-700 hover:text-blue-600 font-medium transition-colors flex items-center space-x-1">
+                    <span>HOW TO BUY</span>
+                    <ChevronDown className="w-4 h-4" />
+                  </button>
+                  
+                  {/* How to Buy Dropdown Menu */}
+                  {isHowToBuyDropdownOpen && (
+                    <div className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                      <a 
+                        href="/buy-from-stock" 
+                        className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors border-b border-gray-100"
+                      >
+                        Buy from Stock
+                      </a>
+                      <a 
+                        href="/buy-from-auction" 
+                        className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors"
+                      >
+                        Buy from Auction
+                      </a>
+                    </div>
+                  )}
+                </div>
+                
                 <a href="/inquiry" className="text-gray-700 hover:text-blue-600 font-medium transition-colors">INQUIRY</a>
               </nav>
             </div>
@@ -254,7 +394,7 @@ const Header = () => {
                 {/* Mobile user actions */}
                 {currentUser && (
                   <div className="pb-2 border-b border-gray-200 space-y-2">
-                    {/* Dashboard link - updated to use role-based navigation */}
+                    {/* Dashboard link */}
                     {dashboardLink && (
                       <Link
                         href={dashboardLink}
@@ -297,10 +437,27 @@ const Header = () => {
                 <nav className="space-y-2">
                   <a href="/" className="block text-gray-700 hover:text-blue-600 font-medium transition-colors py-2">HOME</a>
                   <a href="/about" className="block text-gray-700 hover:text-blue-600 font-medium transition-colors py-2">ABOUT</a>
-                  <a href="/inventory" className="block text-gray-700 hover:text-blue-600 font-medium transition-colors py-2">INVENTORY</a>
+                  
+                  {/* Mobile Inventory section */}
+                  <div className="border-t border-gray-200 pt-2">
+                    <div className="text-gray-700 font-medium py-2">INVENTORY</div>
+                    <a href="/inventory" className="block text-gray-600 hover:text-blue-600 font-medium transition-colors py-2 pl-4">All Inventory</a>
+                    <button onClick={() => handleInventorySectionClick('stockCars')} className="block text-gray-600 hover:text-blue-600 font-medium transition-colors py-2 pl-4 w-full text-left">🚗 Stock Cars</button>
+                    <button onClick={() => handleInventorySectionClick('salvageVehicles')} className="block text-gray-600 hover:text-blue-600 font-medium transition-colors py-2 pl-4 w-full text-left">🚛 Salvage Vehicles</button>
+                    <button onClick={() => handleInventorySectionClick('constructionMachinery')} className="block text-gray-600 hover:text-blue-600 font-medium transition-colors py-2 pl-4 w-full text-left">🏗️ Construction Machinery</button>
+                    <button onClick={() => handleInventorySectionClick('bikes')} className="block text-gray-600 hover:text-blue-600 font-medium transition-colors py-2 pl-4 w-full text-left">🏍️ Motorcycles</button>
+                  </div>
+                  
                   <a href="/inventory/parts" className="block text-gray-700 hover:text-blue-600 font-medium transition-colors py-2">AUTO PARTS</a>
                   <a href="/auctions" className="block text-gray-700 hover:text-blue-600 font-medium transition-colors py-2">AUCTIONS</a>
-                  <a href="/buy-from-stock" className="block text-gray-700 hover:text-blue-600 font-medium transition-colors py-2">HOW TO BUY</a>
+                  
+                  {/* Mobile How to Buy section */}
+                  <div className="border-t border-gray-200 pt-2">
+                    <div className="text-gray-700 font-medium py-2">HOW TO BUY</div>
+                    <a href="/buy-from-stock" className="block text-gray-600 hover:text-blue-600 font-medium transition-colors py-2 pl-4">Buy from Stock</a>
+                    <a href="/buy-from-auction" className="block text-gray-600 hover:text-blue-600 font-medium transition-colors py-2 pl-4">Buy from Auction</a>
+                  </div>
+                  
                   <a href="/inquiry" className="block text-gray-700 hover:text-blue-600 font-medium transition-colors py-2">INQUIRY</a>
                 </nav>
               </div>

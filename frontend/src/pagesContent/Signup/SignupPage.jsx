@@ -87,6 +87,9 @@ const SignupPage = () => {
       // Set auth data in localStorage
       apiService.setAuthData(response);
       
+      // Dispatch login event for header update
+      window.dispatchEvent(new Event('userLogin'));
+      
       alert('Account created successfully! Welcome to Autexline.');
       router.push('/'); // Redirect to home page
     } catch (error) {

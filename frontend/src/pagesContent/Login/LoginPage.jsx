@@ -85,6 +85,9 @@ const LoginPage = () => {
       // Set auth data in localStorage
       apiService.setAuthData(response);
       
+      // Dispatch login event for header update
+      window.dispatchEvent(new Event('userLogin'));
+      
       // Redirect based on user role without showing alert
       const dashboardRoute = getDashboardRoute(response.user);
       router.push(dashboardRoute);

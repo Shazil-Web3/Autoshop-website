@@ -26,7 +26,8 @@ const Footer = () => {
             <h4 className="text-lg font-semibold mb-4">Services</h4>
             <ul className="space-y-2">
               <li><a href="/auctions" className="text-gray-300 hover:text-white transition-colors">Auctions</a></li>
-              <li><a href="/buy-from-stock" className="text-gray-300 hover:text-white transition-colors">How to Buy</a></li>
+              <li><a href="/buy-from-stock" className="text-gray-300 hover:text-white transition-colors">Buy from Stock</a></li>
+              <li><a href="/buy-from-auction" className="text-gray-300 hover:text-white transition-colors">Buy from Auction</a></li>
               <li><a href="/inquiry" className="text-gray-300 hover:text-white transition-colors">Inquiry</a></li>
               <li><a href="#" className="text-gray-300 hover:text-white transition-colors">Export Services</a></li>
             </ul>

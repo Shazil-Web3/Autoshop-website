@@ -1,11 +1,13 @@
 "use client";
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
 import { useGlobalState } from '../../context/GlobalStateContext';
 
 const InventoryPage = () => {
   const { inventory } = useGlobalState();
+  const searchParams = useSearchParams();
   const [openSections, setOpenSections] = useState({
     stockCars: true,
     salvageVehicles: false,
@@ -18,6 +20,35 @@ const InventoryPage = () => {
   const salvageVehiclesRef = useRef(null);
   const constructionMachineryRef = useRef(null);
   const bikesRef = useRef(null);
+
+  // Handle URL section parameter
+  useEffect(() => {
+    const section = searchParams.get('section');
+    if (section && ['stockCars', 'salvageVehicles', 'constructionMachinery', 'bikes'].includes(section)) {
+      // Open the section
+      setOpenSections(prev => ({
+        ...prev,
+        [section]: true
+      }));
+      
+      // Scroll to section after a short delay to ensure DOM is ready
+      setTimeout(() => {
+        const sectionRef = {
+          stockCars: stockCarsRef,
+          salvageVehicles: salvageVehiclesRef,
+          constructionMachinery: constructionMachineryRef,
+          bikes: bikesRef
+        }[section];
+        
+        if (sectionRef?.current) {
+          sectionRef.current.scrollIntoView({ 
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      }, 100);
+    }
+  }, [searchParams]);
 
   const toggleSection = (section) => {
     setOpenSections(prev => ({
@@ -217,42 +248,6 @@ const InventoryPage = () => {
               <h1 className="text-4xl font-bold text-black">Inventory</h1>
               <p className="text-black mt-3 text-lg">Browse our extensive collection of vehicles, machinery, and parts</p>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Sticky Navigation Bar */}
-      <div className="sticky top-0 z-10 bg-white shadow-md border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-wrap gap-4 justify-center">
-            <button 
-              onClick={() => scrollToSection(stockCarsRef, 'stockCars')}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-4 rounded-xl text-lg font-semibold transition-all duration-300 flex items-center space-x-3 shadow-lg hover:shadow-xl transform hover:scale-105"
-            >
-              <span className="text-2xl">🚗</span>
-              <span>Stock Cars</span>
-            </button>
-            <button 
-              onClick={() => scrollToSection(salvageVehiclesRef, 'salvageVehicles')}
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-xl text-lg font-semibold transition-all duration-300 flex items-center space-x-3 shadow-lg hover:shadow-xl transform hover:scale-105"
-            >
-              <span className="text-2xl">🚛</span>
-              <span>Salvage Vehicles</span>
-            </button>
-            <button 
-              onClick={() => scrollToSection(constructionMachineryRef, 'constructionMachinery')}
-              className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-4 rounded-xl text-lg font-semibold transition-all duration-300 flex items-center space-x-3 shadow-lg hover:shadow-xl transform hover:scale-105"
-            >
-              <span className="text-2xl">🏗️</span>
-              <span>Construction Machinery</span>
-            </button>
-            <button 
-              onClick={() => scrollToSection(bikesRef, 'bikes')}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-4 rounded-xl text-lg font-semibold transition-all duration-300 flex items-center space-x-3 shadow-lg hover:shadow-xl transform hover:scale-105"
-            >
-              <span className="text-2xl">🏍️</span>
-              <span>Motorcycles</span>
-            </button>
           </div>
         </div>
       </div>
