@@ -1,97 +1,151 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import apiService from '../../services/api';
 import { 
   PlusIcon,
-  DocumentTextIcon,
   XMarkIcon,
   ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
+
+const MAX_IMAGES = 25;
 
 const SubmitProductRequest = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const [requestType, setRequestType] = useState('vehicle');
   const [formData, setFormData] = useState({
+    category: 'stockCars',
     title: '',
+    // Pricing (dealer has no commission input)
+    vehiclePrice: '',
+    negotiation: '',
     price: '',
-    description: '',
+    totalPrice: '',
+    // Media
+    images: [],
+    imagePreviews: [],
+    videoFile: null,
+    // Common
+    stockNo: '',
     location: '',
-    // Vehicle specific fields
-    make: '',
-    model: '',
+    description: '',
+    // Vehicle/machinery/bike fields
     year: '',
     mileage: '',
-    fuelType: '',
+    engine: '',
     transmission: '',
     color: '',
-    engine: '',
-    stockNo: '',
-    totalPrice: '',
+    fuel: '',
     drive: '',
     seats: '',
     doors: '',
-    features: [],
     condition: '',
-    // Part specific fields
-    category: '',
+    // Extended specs
+    chassisNo: '',
+    engineCode: '',
+    modelCode: '',
+    steering: '',
+    versionClass: '',
+    registrationYearMonth: '',
+    manufactureYearMonth: '',
+    dimension: '',
+    weight: '',
+    maxCapacity: '',
+    capacity: '',
+    // Parts specific
+    partCategory: '',
     brand: '',
     stock: '',
     compatibleVehicles: [],
-    // Machinery specific fields
-    capacity: ''
+    make: '',
+    model: ''
   });
-  const [newFeature, setNewFeature] = useState('');
   const [newCompatibleVehicle, setNewCompatibleVehicle] = useState('');
 
-  // Check if user is authenticated and has permission
+  // Auth guard
   useEffect(() => {
     const user = apiService.getCurrentUser();
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-    
-    if (!['dealer', 'agent'].includes(user.role)) {
-      router.push('/');
-      return;
-    }
-    
-    if (user.status !== 'approved') {
-      router.push('/');
-      return;
-    }
+    if (!user) return router.push('/login');
+    if (!['dealer', 'agent'].includes(user.role)) return router.push('/');
+    if (user.status !== 'approved') return router.push('/');
   }, [router]);
 
-  const handleLogout = () => {
-    apiService.logout();
-    router.push('/login');
+  const categories = [
+    { value: 'stockCars', label: 'Stock Cars', icon: '🚗' },
+    { value: 'salvageVehicles', label: 'Salvage Vehicles', icon: '🚛' },
+    { value: 'constructionMachinery', label: 'Construction Machinery', icon: '🏗️' },
+    { value: 'bikes', label: 'Motorcycles', icon: '🏍️' },
+    { value: 'autoParts', label: 'Auto Parts', icon: '🧰' }
+  ];
+
+  const carFeatureOptions = [
+    'CD Player','Sun Roof','Leather Seat','Alloy Wheels','Power Steering','Power Window','A/C','ABS','Airbag','Radio','CD Changer','DVD','TV','Power Seat','Back Tire','Grill Guard','Rear Spoiler','Central Locking','Jack','Spare Tire','Wheel Spanner','Fog Lights','Back Camera','Push Start','Keyless Entry','ESC','360 Degree Camera','Body Kit','Side Airbag','Power Mirror','Side Skirts','Front Lip Spoiler','Navigation','Turbo','Power Slide Door'
+  ];
+  const bikeFeatureOptions = [
+    'Brembo Brakes','Seat Cowl','Tinted Screen','ABS','Cruise Control','Modes','Heated Grips','TC','Akrapovic','Super Charged','Rad Gaurd','Electric Suspension','Leo Vince','Panniers','Top Box','Frame Protection','Twin Seat','Ohlins','Single Seat','Tail Tidy','Sports Exhaust','LED headlight','Keyless Ride','Driving modes Pro','Comfort Package','Cruise control','ABS pro','Showa Forks','R&G Carbon','Finance Available','HPI Clear','Delivery Available','Part Exchange Welcome'
+  ];
+  const makes = [
+    "Toyota","Nissan","Honda","Mazda","Mitsubishi","Subaru","Suzuki","Isuzu","Daihatsu","Hino","Lexus","Mercedes-Benz","BMW","Volkswagen","Audi","Peugeot","Ford","Volvo","Land Rover","Jaguar","Jeep","Chevrolet","Hyundai","Kia","Ssangyong","Renault Samsung"
+  ];
+  const years = Array.from({ length: 46 }, (_, i) => 2024 - i);
+  const partCategories = [
+    "Engine & Components","Transmission & Drivetrain","Suspension & Components","Lightings","Computers & Sensors","Chassis","Body Parts","Door Parts","Car Electronics","Cooling Components","Electrical Parts","Exhaust & Components","Exterior Parts","Interior Parts","Tires & Wheels","Brake","Mirrors & Windshields","All Other Parts"
+  ];
+
+  const displayPrice = useMemo(() => {
+    const v = parseFloat(formData.vehiclePrice) || 0;
+    const n = parseFloat(formData.negotiation) || 0;
+    return Math.max(0, Math.round((v + n) * 100) / 100);
+  }, [formData.vehiclePrice, formData.negotiation]);
+
+  const handleNumericChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value.replace(/[^0-9.]/g, '') }));
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleImagesChange = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    const remainingSlots = MAX_IMAGES - formData.images.length;
+    const toAdd = files.slice(0, remainingSlots);
+    const previews = toAdd.map(f => URL.createObjectURL(f));
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      images: [...prev.images, ...toAdd],
+      imagePreviews: [...prev.imagePreviews, ...previews]
     }));
+    e.target.value = '';
   };
 
-  const addFeature = () => {
-    if (newFeature.trim() && !formData.features.includes(newFeature.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        features: [...prev.features, newFeature.trim()]
-      }));
-      setNewFeature('');
-    }
+  const removeImageAt = (index) => {
+    setFormData(prev => {
+      const images = prev.images.slice();
+      const previews = prev.imagePreviews.slice();
+      images.splice(index, 1);
+      const removedPreview = previews.splice(index, 1)[0];
+      if (removedPreview) URL.revokeObjectURL(removedPreview);
+      return { ...prev, images, imagePreviews: previews };
+    });
   };
 
-  const removeFeature = (index) => {
+  const handleVideoChange = (e) => {
+    const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+    setFormData(prev => ({ ...prev, videoFile: file }));
+    e.target.value = '';
+  };
+
+  const toggleFeature = (feature) => {
     setFormData(prev => ({
       ...prev,
-      features: prev.features.filter((_, i) => i !== index)
+      features: prev.features?.includes(feature)
+        ? prev.features.filter(f => f !== feature)
+        : [...(prev.features || []), feature]
     }));
   };
 
@@ -104,7 +158,6 @@ const SubmitProductRequest = () => {
       setNewCompatibleVehicle('');
     }
   };
-
   const removeCompatibleVehicle = (index) => {
     setFormData(prev => ({
       ...prev,
@@ -112,539 +165,391 @@ const SubmitProductRequest = () => {
     }));
   };
 
+  const handleLogout = () => {
+    apiService.logout();
+    router.push('/login');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-
     try {
-      const response = await apiService.createProductRequest({
-        requestType,
-        productData: formData
-      });
-
+      const formattedPrice = displayPrice ? `$${displayPrice.toLocaleString()}` : '';
+      const payload = {
+        ...formData,
+        price: formattedPrice,
+        totalPrice: formattedPrice,
+        features: (formData.features || []).filter(Boolean),
+        image: formData.imagePreviews[0] || ''
+      };
+      await apiService.createProductRequest({ requestType: formData.category, productData: payload });
       setMessage('Product request submitted successfully!');
-      // Reset form
+      // Revoke previews
+      formData.imagePreviews.forEach(url => URL.revokeObjectURL(url));
+      // Reset
       setFormData({
+        category: 'stockCars',
         title: '',
+        vehiclePrice: '',
+        negotiation: '',
         price: '',
-        description: '',
+        totalPrice: '',
+        images: [],
+        imagePreviews: [],
+        videoFile: null,
+        stockNo: '',
         location: '',
-        make: '',
-        model: '',
+        description: '',
         year: '',
         mileage: '',
-        fuelType: '',
+        engine: '',
         transmission: '',
         color: '',
-        engine: '',
-        stockNo: '',
-        totalPrice: '',
+        fuel: '',
         drive: '',
         seats: '',
         doors: '',
-        features: [],
         condition: '',
-        category: '',
+        chassisNo: '',
+        engineCode: '',
+        modelCode: '',
+        steering: '',
+        versionClass: '',
+        registrationYearMonth: '',
+        manufactureYearMonth: '',
+        dimension: '',
+        weight: '',
+        maxCapacity: '',
+        capacity: '',
+        partCategory: '',
         brand: '',
         stock: '',
         compatibleVehicles: [],
-        capacity: ''
+        make: '',
+        model: ''
       });
-    } catch (error) {
-      setMessage(error.message || 'Error submitting product request');
+    } catch (err) {
+      setMessage(err?.message || 'Error submitting product request');
     } finally {
       setIsLoading(false);
     }
   };
 
+  const showFeatures = formData.category === 'stockCars' || formData.category === 'bikes';
+  const staticFeatureOptions = formData.category === 'stockCars' ? carFeatureOptions : bikeFeatureOptions;
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Submit Product Request</h1>
               <p className="text-gray-600 mt-2">Add a new product for admin review</p>
             </div>
-            <button
-              onClick={handleLogout}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2"
-            >
+            <button onClick={handleLogout} className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2">
               <ArrowRightOnRectangleIcon className="w-4 h-4" />
               <span>Logout</span>
             </button>
           </div>
-
-          {/* Message */}
           {message && (
-            <div className={`p-4 rounded-lg ${
-              message.includes('successfully') 
-                ? 'bg-green-50 border border-green-200 text-green-800' 
-                : 'bg-red-50 border border-red-200 text-red-800'
-            }`}>
-              {message}
-            </div>
+            <div className={`p-4 rounded-lg ${message.includes('successfully') ? 'bg-green-50 border border-green-200 text-green-800' : 'bg-red-50 border border-red-200 text-red-800'}`}>{message}</div>
           )}
         </div>
 
-        {/* Product Type Selection */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Product Type</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button
-              onClick={() => setRequestType('vehicle')}
-              className={`p-4 rounded-lg border-2 transition-colors ${
-                requestType === 'vehicle'
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <DocumentTextIcon className="w-6 h-6 text-blue-600" />
-                <div className="text-left">
-                  <h3 className="font-medium text-gray-900">Vehicle</h3>
-                  <p className="text-sm text-gray-500">Cars, trucks, motorcycles</p>
-                </div>
-              </div>
-            </button>
-
-            <button
-              onClick={() => setRequestType('part')}
-              className={`p-4 rounded-lg border-2 transition-colors ${
-                requestType === 'part'
-                  ? 'border-green-500 bg-green-50'
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <DocumentTextIcon className="w-6 h-6 text-green-600" />
-                <div className="text-left">
-                  <h3 className="font-medium text-gray-900">Auto Parts</h3>
-                  <p className="text-sm text-gray-500">Spare parts, accessories</p>
-                </div>
-              </div>
-            </button>
-
-            <button
-              onClick={() => setRequestType('machinery')}
-              className={`p-4 rounded-lg border-2 transition-colors ${
-                requestType === 'machinery'
-                  ? 'border-purple-500 bg-purple-50'
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <DocumentTextIcon className="w-6 h-6 text-purple-600" />
-                <div className="text-left">
-                  <h3 className="font-medium text-gray-900">Machinery</h3>
-                  <p className="text-sm text-gray-500">Construction equipment</p>
-                </div>
-              </div>
-            </button>
-          </div>
-        </div>
-
-        {/* Product Form */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">Product Details</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Common Fields */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Product Title *
-              </label>
-              <input
-                type="text"
-                name="title"
-                value={formData.title}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                placeholder="Enter product title"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Price *
-              </label>
-              <input
-                type="number"
-                name="price"
-                value={formData.price}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                placeholder="Enter price"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Location *
-              </label>
-              <input
-                type="text"
-                name="location"
-                value={formData.location}
-                onChange={handleInputChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                placeholder="Enter location"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Stock Number
-              </label>
-              <input
-                type="text"
-                name="stockNo"
-                value={formData.stockNo}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                placeholder="Enter stock number"
-              />
-            </div>
-          </div>
-
-          <div className="mt-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Description *
-            </label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              required
-              rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-              placeholder="Enter product description"
-            />
-          </div>
-
-          {/* Vehicle Specific Fields */}
-          {requestType === 'vehicle' && (
-            <div className="mt-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Vehicle Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Make</label>
-                  <input
-                    type="text"
-                    name="make"
-                    value={formData.make}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                    placeholder="Enter make"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Model</label>
-                  <input
-                    type="text"
-                    name="model"
-                    value={formData.model}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                    placeholder="Enter model"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Year</label>
-                  <input
-                    type="number"
-                    name="year"
-                    value={formData.year}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                    placeholder="Enter year"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Mileage</label>
-                  <input
-                    type="number"
-                    name="mileage"
-                    value={formData.mileage}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                    placeholder="Enter mileage"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Fuel Type</label>
-                  <select
-                    name="fuelType"
-                    value={formData.fuelType}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                  >
-                    <option value="">Select fuel type</option>
-                    <option value="Petrol">Petrol</option>
-                    <option value="Diesel">Diesel</option>
-                    <option value="Electric">Electric</option>
-                    <option value="Hybrid">Hybrid</option>
-                    <option value="CNG">CNG</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Transmission</label>
-                  <select
-                    name="transmission"
-                    value={formData.transmission}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                  >
-                    <option value="">Select transmission</option>
-                    <option value="Manual">Manual</option>
-                    <option value="Automatic">Automatic</option>
-                    <option value="CVT">CVT</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Color</label>
-                  <input
-                    type="text"
-                    name="color"
-                    value={formData.color}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                    placeholder="Enter color"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Engine</label>
-                  <input
-                    type="text"
-                    name="engine"
-                    value={formData.engine}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                    placeholder="Enter engine details"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Drive</label>
-                  <select
-                    name="drive"
-                    value={formData.drive}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                  >
-                    <option value="">Select drive type</option>
-                    <option value="FWD">Front Wheel Drive</option>
-                    <option value="RWD">Rear Wheel Drive</option>
-                    <option value="AWD">All Wheel Drive</option>
-                    <option value="4WD">Four Wheel Drive</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Seats</label>
-                  <input
-                    type="number"
-                    name="seats"
-                    value={formData.seats}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                    placeholder="Number of seats"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Doors</label>
-                  <input
-                    type="number"
-                    name="doors"
-                    value={formData.doors}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                    placeholder="Number of doors"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Condition</label>
-                  <select
-                    name="condition"
-                    value={formData.condition}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                  >
-                    <option value="">Select condition</option>
-                    <option value="Excellent">Excellent</option>
-                    <option value="Good">Good</option>
-                    <option value="Fair">Fair</option>
-                    <option value="Poor">Poor</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Part Specific Fields */}
-          {requestType === 'part' && (
-            <div className="mt-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Part Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                  <input
-                    type="text"
-                    name="category"
-                    value={formData.category}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                    placeholder="Enter part category"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Brand</label>
-                  <input
-                    type="text"
-                    name="brand"
-                    value={formData.brand}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                    placeholder="Enter brand"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Stock Quantity</label>
-                  <input
-                    type="number"
-                    name="stock"
-                    value={formData.stock}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                    placeholder="Enter stock quantity"
-                  />
-                </div>
-              </div>
-
-              {/* Compatible Vehicles */}
-              <div className="mt-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Compatible Vehicles
+        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm p-6 space-y-8">
+          {/* Category Selection */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-3">Product Category *</label>
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+              {categories.map((category) => (
+                <label key={category.value} className={`relative flex flex-col items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${formData.category === category.value ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'}`}>
+                  <input type="radio" name="category" value={category.value} checked={formData.category === category.value} onChange={handleInputChange} className="sr-only" />
+                  <span className="text-2xl mb-2">{category.icon}</span>
+                  <span className="text-sm font-medium text-gray-900 text-center">{category.label}</span>
                 </label>
-                <div className="flex space-x-2 mb-2">
-                  <input
-                    type="text"
-                    value={newCompatibleVehicle}
-                    onChange={(e) => setNewCompatibleVehicle(e.target.value)}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                    placeholder="Add compatible vehicle"
-                  />
-                  <button
-                    type="button"
-                    onClick={addCompatibleVehicle}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                  >
-                    Add
-                  </button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {formData.compatibleVehicles.map((vehicle, index) => (
-                    <span
-                      key={index}
-                      className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
-                    >
-                      {vehicle}
-                      <button
-                        type="button"
-                        onClick={() => removeCompatibleVehicle(index)}
-                        className="ml-2 text-blue-600 hover:text-blue-800"
-                      >
-                        <XMarkIcon className="w-4 h-4" />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Machinery Specific Fields */}
-          {requestType === 'machinery' && (
-            <div className="mt-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Machinery Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Capacity</label>
-                  <input
-                    type="text"
-                    name="capacity"
-                    value={formData.capacity}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                    placeholder="Enter capacity"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Features */}
-          <div className="mt-8">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Features
-            </label>
-            <div className="flex space-x-2 mb-2">
-              <input
-                type="text"
-                value={newFeature}
-                onChange={(e) => setNewFeature(e.target.value)}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                placeholder="Add a feature"
-              />
-              <button
-                type="button"
-                onClick={addFeature}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-              >
-                Add
-              </button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {formData.features.map((feature, index) => (
-                <span
-                  key={index}
-                  className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-100 text-green-800"
-                >
-                  {feature}
-                  <button
-                    type="button"
-                    onClick={() => removeFeature(index)}
-                    className="ml-2 text-green-600 hover:text-green-800"
-                  >
-                    <XMarkIcon className="w-4 h-4" />
-                  </button>
-                </span>
               ))}
             </div>
           </div>
 
-          {/* Submit Button */}
+          {/* Basic Information */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-black mb-2">Product Title *</label>
+              <input type="text" name="title" value={formData.title} onChange={handleInputChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., 2018 KIA STINGER / SMART KEY, BACK CAMERA" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-black mb-2">Stock Number *</label>
+              <input type="text" name="stockNo" value={formData.stockNo} onChange={handleInputChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., BW803567" />
+            </div>
+          </div>
+
+          {/* Pricing */}
+          <div>
+            <h3 className="text-lg font-medium text-black mb-4">Pricing</h3>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-black mb-2">Vehicle Price</label>
+                <input type="text" name="vehiclePrice" value={formData.vehiclePrice} onChange={handleNumericChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., 10330" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-black mb-2">Negotiation</label>
+                <input type="text" name="negotiation" value={formData.negotiation} onChange={handleNumericChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., 300" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-black mb-2">Display Price</label>
+                <input type="text" value={displayPrice ? `$${displayPrice.toLocaleString()}` : ''} readOnly className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-black" placeholder="$0" />
+              </div>
+            </div>
+          </div>
+
+          {/* Specifications (non-parts) */}
+          {formData.category !== 'autoParts' && (
+            <div>
+              <h3 className="text-lg font-medium text-black mb-4">Specifications</h3>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Year *</label>
+                  <input type="text" name="year" value={formData.year} onChange={handleInputChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., 2018" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Mileage/Hours *</label>
+                  <input type="text" name="mileage" value={formData.mileage} onChange={handleInputChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., 162,182 km" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Engine *</label>
+                  <input type="text" name="engine" value={formData.engine} onChange={handleInputChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., 3,342cc" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Transmission *</label>
+                  <input type="text" name="transmission" value={formData.transmission} onChange={handleInputChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., AT" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Location *</label>
+                  <input type="text" name="location" value={formData.location} onChange={handleInputChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., Korea" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Color *</label>
+                  <input type="text" name="color" value={formData.color} onChange={handleInputChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., Gray" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Fuel Type *</label>
+                  <input type="text" name="fuel" value={formData.fuel} onChange={handleInputChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., Petrol" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Drive Type</label>
+                  <input type="text" name="drive" value={formData.drive} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., 4WD" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Seats</label>
+                  <input type="text" name="seats" value={formData.seats} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., 5" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Doors</label>
+                  <input type="text" name="doors" value={formData.doors} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., 4" />
+                </div>
+                {/* Extended */}
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Chassis No.</label>
+                  <input type="text" name="chassisNo" value={formData.chassisNo} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., XXXXXXXXXX" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Engine Code</label>
+                  <input type="text" name="engineCode" value={formData.engineCode} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., 1NZ-FE" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Model Code</label>
+                  <input type="text" name="modelCode" value={formData.modelCode} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., DBA-XXX" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Steering</label>
+                  <select name="steering" value={formData.steering} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black">
+                    <option value="">Select</option>
+                    <option value="Left">Left</option>
+                    <option value="Right">Right</option>
+                    <option value="Center">Center</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Version/Class</label>
+                  <input type="text" name="versionClass" value={formData.versionClass} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., Back Camera" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Registration Year/Month</label>
+                  <input type="text" name="registrationYearMonth" value={formData.registrationYearMonth} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., 2015/07" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Manufacture Year/Month</label>
+                  <input type="text" name="manufactureYearMonth" value={formData.manufactureYearMonth} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., 2014/12" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Dimension</label>
+                  <input type="text" name="dimension" value={formData.dimension} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., 3.59×1.59×1.48 m" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Weight</label>
+                  <input type="text" name="weight" value={formData.weight} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., 870 kg" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Max. Cap</label>
+                  <input type="text" name="maxCapacity" value={formData.maxCapacity} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., 3.0L / 1000kg" />
+                </div>
+                {formData.category === 'constructionMachinery' && (
+                  <div>
+                    <label className="block text-sm font-medium text-black mb-2">Capacity (for machinery)</label>
+                    <input type="text" name="capacity" value={formData.capacity} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., 20 tons" />
+                  </div>
+                )}
+                {formData.category === 'salvageVehicles' && (
+                  <div className="lg:col-span-3">
+                    <label className="block text-sm font-medium text-black mb-2">Condition (comments)</label>
+                    <textarea name="condition" value={formData.condition} onChange={handleInputChange} rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="Enter condition details" />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Parts specific fields */}
+          {formData.category === 'autoParts' && (
+            <div>
+              <h3 className="text-lg font-medium text-black mb-4">Part Details</h3>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Part Category *</label>
+                  <select name="partCategory" value={formData.partCategory} onChange={handleInputChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black">
+                    <option value="">Select Category</option>
+                    {partCategories.map(pc => (<option key={pc} value={pc} className="text-black">{pc}</option>))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Brand</label>
+                  <input type="text" name="brand" value={formData.brand} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., Toyota OEM" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Select Maker</label>
+                  <select name="make" value={formData.make} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black">
+                    <option value="">Select Maker</option>
+                    {makes.map(m => (<option key={m} value={m} className="text-black">{m}</option>))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Select Model</label>
+                  <input type="text" name="model" value={formData.model} onChange={handleInputChange} placeholder="Enter model" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-black" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Select Year</label>
+                  <select name="year" value={formData.year} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black">
+                    <option value="">Select Year</option>
+                    {years.map(y => (<option key={y} value={y} className="text-black">{y}</option>))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Model Code</label>
+                  <input type="text" name="modelCode" value={formData.modelCode} onChange={handleInputChange} placeholder="Enter model code" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-black" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Stock Quantity</label>
+                  <input type="number" name="stock" value={formData.stock} onChange={handleInputChange} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., 5" />
+                </div>
+                <div className="lg:col-span-2">
+                  <label className="block text-sm font-medium text-black mb-2">Compatible Vehicles</label>
+                  <div className="flex gap-2">
+                    <input type="text" value={newCompatibleVehicle} onChange={(e) => setNewCompatibleVehicle(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCompatibleVehicle())} className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500" placeholder="e.g., Toyota Corolla 2014-2018" />
+                    <button type="button" onClick={addCompatibleVehicle} className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">Add</button>
+                  </div>
+                  {formData.compatibleVehicles.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {formData.compatibleVehicles.map((cv, index) => (
+                        <span key={index} className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                          {cv}
+                          <button type="button" onClick={() => removeCompatibleVehicle(index)} className="ml-2 text-blue-600 hover:text-blue-800"><XMarkIcon className="w-4 h-4" /></button>
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Media */}
+          <div>
+            <h3 className="text-lg font-medium text-black mb-4">Media</h3>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-black mb-2">Pictures (max {MAX_IMAGES})</label>
+                <input
+                  id="dealerImageUpload"
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImagesChange}
+                  disabled={formData.images.length >= MAX_IMAGES}
+                  className="sr-only"
+                />
+                <label
+                  htmlFor="dealerImageUpload"
+                  className={`inline-flex items-center px-4 py-2 rounded-md text-white text-sm font-medium ${formData.images.length >= MAX_IMAGES ? 'bg-gray-300 cursor-not-allowed pointer-events-none' : 'bg-blue-600 hover:bg-blue-700'}`}
+                >
+                  <span className="w-5 h-5 mr-2">📷</span>
+                  <span>Select Images</span>
+                </label>
+                <div className="mt-2 text-sm text-black">{formData.images.length} / {MAX_IMAGES} selected</div>
+                {formData.imagePreviews.length > 0 && (
+                  <div className="mt-3 grid grid-cols-5 gap-2">
+                    {formData.imagePreviews.map((src, idx) => (
+                      <div key={idx} className="relative group">
+                        <img src={src} alt={`preview-${idx}`} className="w-full h-16 object-cover rounded" />
+                        <button type="button" onClick={() => removeImageAt(idx)} className="absolute top-1 right-1 bg-white/80 hover:bg-white text-red-600 rounded p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <span className="w-4 h-4">✕</span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-black mb-2">Video (max 1)</label>
+                <input
+                  id="dealerVideoUpload"
+                  type="file"
+                  accept="video/*"
+                  onChange={handleVideoChange}
+                  disabled={!!formData.videoFile}
+                  className="sr-only"
+                />
+                <label
+                  htmlFor="dealerVideoUpload"
+                  className={`inline-flex items-center px-4 py-2 rounded-md text-white text-sm font-medium ${!!formData.videoFile ? 'bg-gray-300 cursor-not-allowed pointer-events-none' : 'bg-blue-600 hover:bg-blue-700'}`}
+                >
+                  <span className="w-5 h-5 mr-2">🎬</span>
+                  <span>Select Video</span>
+                </label>
+                {formData.videoFile && (
+                  <div className="mt-2 text-sm text-black flex items-center justify-between">
+                    <span>{formData.videoFile.name}</span>
+                    <button type="button" className="text-red-600" onClick={() => setFormData(prev => ({ ...prev, videoFile: null }))}>Remove</button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Features (cars/bikes only) */}
+          {showFeatures && (
+            <div>
+              <label className="block text-sm font-medium text-black mb-3">Features</label>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {staticFeatureOptions.map((feature) => (
+                  <button type="button" key={feature} onClick={() => toggleFeature(feature)} className={`px-3 py-1 rounded-full text-sm border transition-colors ${(formData.features || []).includes(feature) ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-black border-gray-300 hover:border-blue-400'}`}>{feature}</button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="mt-8 flex justify-end">
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-            >
+            <button type="submit" disabled={isLoading} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2">
               <PlusIcon className="w-5 h-5" />
               <span>{isLoading ? 'Submitting...' : 'Submit Product Request'}</span>
             </button>

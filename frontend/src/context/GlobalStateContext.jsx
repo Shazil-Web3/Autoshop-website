@@ -107,7 +107,9 @@ export const GlobalStateProvider = ({ children }) => {
         fuel: "Petrol",
         condition: "Mint condition, low mileage"
       }
-    ]
+    ],
+    // New category for auto parts managed via admin add-product
+    autoParts: []
   });
 
   // Load inventory from localStorage on mount
