@@ -19,6 +19,13 @@ class ApiService {
     };
   }
 
+  // Helper for auth header only (for FormData)
+  getAuthOnlyHeader() {
+    if (typeof window === 'undefined') return {};
+    const token = localStorage.getItem('token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  }
+
   // Helper method to handle responses
   async handleResponse(response) {
     const data = await response.json();
@@ -256,6 +263,26 @@ class ApiService {
       method: 'POST',
       headers: this.getAuthHeaders(),
       body: JSON.stringify({ productData, adminNotes }),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Vehicles: create via FormData
+  async createVehicle(formData) {
+    const response = await fetch(`${this.baseURL}/vehicles`, {
+      method: 'POST',
+      headers: this.getAuthOnlyHeader(),
+      body: formData,
+    });
+    return this.handleResponse(response);
+  }
+
+  // Parts: create via FormData
+  async createPart(formData) {
+    const response = await fetch(`${this.baseURL}/parts`, {
+      method: 'POST',
+      headers: this.getAuthOnlyHeader(),
+      body: formData,
     });
     return this.handleResponse(response);
   }

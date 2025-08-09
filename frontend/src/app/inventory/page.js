@@ -181,7 +181,7 @@ const InventoryPageContent = () => {
           <div className="mt-3 text-sm text-gray-600">
             {vehicle.features ? vehicle.features.slice(0, 6).join(", ") : "Power Steering, AC, Airbag, Leather Seat, Back Camera"} 
             <Link 
-              href={`/inventory/${type.toLowerCase()}/${vehicle.id}`}
+              href={`/inventory/${(type === 'Stock Car' ? 'stock-cars' : type.toLowerCase())}/${vehicle._id || vehicle.id}`}
               className="text-blue-600 cursor-pointer hover:underline ml-1"
             >
               and more...
@@ -204,7 +204,7 @@ const InventoryPageContent = () => {
             <div className="text-sm text-black">CIF to Bahrain (RO/RO)</div>
           </div>
           <Link 
-            href={`/inventory/${type.toLowerCase()}/${vehicle.id}`}
+            href={`/inventory/${(type === 'Stock Car' ? 'stock-cars' : type.toLowerCase())}/${vehicle._id || vehicle.id}`}
             className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded text-base font-medium w-full inline-block text-center transition-colors"
           >
             <svg className="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -266,7 +266,7 @@ const InventoryPageContent = () => {
             {openSections.stockCars && (
               <div className="mt-6 space-y-8">
                 {inventory.stockCars.map((car) => (
-                  <VehicleCard key={car.id} vehicle={car} type="Stock Car" />
+                  <VehicleCard key={car._id || car.id} vehicle={car} type="Stock Car" />
                 ))}
               </div>
             )}
@@ -284,7 +284,7 @@ const InventoryPageContent = () => {
             {openSections.salvageVehicles && (
               <div className="mt-6 space-y-8">
                 {inventory.salvageVehicles.map((vehicle) => (
-                  <VehicleCard key={vehicle.id} vehicle={vehicle} type="Salvage" />
+                  <VehicleCard key={vehicle._id || vehicle.id} vehicle={vehicle} type="Salvage" />
                 ))}
               </div>
             )}
@@ -302,7 +302,7 @@ const InventoryPageContent = () => {
             {openSections.constructionMachinery && (
               <div className="mt-6 space-y-8">
                 {inventory.constructionMachinery.map((machinery) => (
-                  <VehicleCard key={machinery.id} vehicle={machinery} type="Machinery" />
+                  <VehicleCard key={machinery._id || machinery.id} vehicle={machinery} type="Machinery" />
                 ))}
               </div>
             )}
@@ -320,7 +320,7 @@ const InventoryPageContent = () => {
             {openSections.bikes && (
               <div className="mt-6 space-y-8">
                 {inventory.bikes.map((bike) => (
-                  <VehicleCard key={bike.id} vehicle={bike} type="Motorcycle" />
+                  <VehicleCard key={bike._id || bike.id} vehicle={bike} type="Motorcycle" />
                 ))}
               </div>
             )}

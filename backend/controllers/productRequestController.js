@@ -128,7 +128,37 @@ const productRequestController = {
       // Create the actual product based on request type
       let approvedProduct;
       if (request.requestType === 'vehicle') {
-        approvedProduct = new Vehicle(request.productData);
+        // Map request productData to Vehicle UI fields
+        const vData = {
+          ...request.productData,
+          title: request.productData.title,
+          price: request.productData.price,
+          totalPrice: request.productData.totalPrice,
+          image: Array.isArray(request.productData.images) && request.productData.images.length > 0
+            ? request.productData.images[0]
+            : request.productData.image,
+          images: request.productData.images,
+          stockNo: request.productData.stockNo,
+          mileage: request.productData.mileage,
+          year: String(request.productData.year || request.productData.yearText || ''),
+          engine: request.productData.engine,
+          transmission: request.productData.transmission,
+          location: request.productData.location,
+          color: request.productData.color,
+          fuel: request.productData.fuel || request.productData.fuelType,
+          drive: request.productData.drive,
+          seats: request.productData.seats,
+          doors: request.productData.doors,
+          features: request.productData.features,
+          condition: request.productData.condition,
+          capacity: request.productData.capacity,
+          category: request.productData.category, // must be one of the 4
+          status: 'available',
+          postedBy: request.requesterId,
+          postedByRole: request.requesterRole,
+          isApproved: true
+        };
+        approvedProduct = new Vehicle(vData);
       } else if (request.requestType === 'part') {
         approvedProduct = new Part(request.productData);
       }
@@ -218,7 +248,36 @@ const productRequestController = {
       // Create the actual product with edited data
       let approvedProduct;
       if (request.requestType === 'vehicle') {
-        approvedProduct = new Vehicle(request.productData);
+        const vData = {
+          ...request.productData,
+          title: request.productData.title,
+          price: request.productData.price,
+          totalPrice: request.productData.totalPrice,
+          image: Array.isArray(request.productData.images) && request.productData.images.length > 0
+            ? request.productData.images[0]
+            : request.productData.image,
+          images: request.productData.images,
+          stockNo: request.productData.stockNo,
+          mileage: request.productData.mileage,
+          year: String(request.productData.year || request.productData.yearText || ''),
+          engine: request.productData.engine,
+          transmission: request.productData.transmission,
+          location: request.productData.location,
+          color: request.productData.color,
+          fuel: request.productData.fuel || request.productData.fuelType,
+          drive: request.productData.drive,
+          seats: request.productData.seats,
+          doors: request.productData.doors,
+          features: request.productData.features,
+          condition: request.productData.condition,
+          capacity: request.productData.capacity,
+          category: request.productData.category,
+          status: 'available',
+          postedBy: request.requesterId,
+          postedByRole: request.requesterRole,
+          isApproved: true
+        };
+        approvedProduct = new Vehicle(vData);
       } else if (request.requestType === 'part') {
         approvedProduct = new Part(request.productData);
       }

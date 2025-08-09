@@ -1,6 +1,7 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
+import { partsService } from '../../../services/partsService';
 
 const PartsPage = () => {
   const [searchFilters, setSearchFilters] = useState({
@@ -13,6 +14,30 @@ const PartsPage = () => {
 
   const [showInquiryForm, setShowInquiryForm] = useState(false);
   const [selectedPart, setSelectedPart] = useState(null);
+  const [parts, setParts] = useState([]);
+
+  useEffect(() => {
+    const loadParts = async () => {
+      try {
+        const data = await partsService.getAllParts();
+        const mapped = Array.isArray(data) ? data.map(p => ({
+          id: p._id || p.id,
+          name: p.name,
+          make: p.brand || '',
+          model: p.compatibleVehicles?.[0] || '',
+          year: '',
+          category: p.category,
+          price: typeof p.price === 'number' ? `$${p.price.toFixed(2)}` : p.price,
+          stock: (typeof p.stock === 'number' ? (p.stock > 0 ? 'In Stock' : 'Out of Stock') : (p.stock || 'In Stock')),
+          image: (Array.isArray(p.images) && p.images.length > 0) ? p.images[0] : '/images/placeholder-part.jpg'
+        })) : [];
+        setParts(mapped);
+      } catch (err) {
+        setParts([]);
+      }
+    };
+    loadParts();
+  }, []);
 
   const makes = [
     "Toyota", "Nissan", "Honda", "Mazda", "Mitsubishi", "Subaru", "Suzuki", 
@@ -44,41 +69,10 @@ const PartsPage = () => {
     { name: "All Other Parts", count: 16304 }
   ];
 
-  // Sample parts data
   const sampleParts = [
-    {
-      id: 1,
-      name: "Toyota Camry Engine Oil Filter",
-      make: "Toyota",
-      model: "Camry",
-      year: "2018",
-      category: "Engine & Components",
-      price: "$15.99",
-      stock: "In Stock",
-      image: "/4.jpg"
-    },
-    {
-      id: 2,
-      name: "Honda Civic Brake Pads Set",
-      make: "Honda",
-      model: "Civic",
-      year: "2020",
-      category: "Brake",
-      price: "$45.50",
-      stock: "In Stock",
-      image: "/5.jpeg"
-    },
-    {
-      id: 3,
-      name: "Nissan Altima Headlight Assembly",
-      make: "Nissan",
-      model: "Altima",
-      year: "2019",
-      category: "Lightings",
-      price: "$89.99",
-      stock: "Limited Stock",
-      image: "/6.jpeg"
-    }
+    { id: 1, name: "Toyota Camry Engine Oil Filter", make: "Toyota", model: "Camry", year: "2018", category: "Engine & Components", price: "$15.99", stock: "In Stock", image: "/4.jpg" },
+    { id: 2, name: "Honda Civic Brake Pads Set", make: "Honda", model: "Civic", year: "2020", category: "Brake", price: "$45.50", stock: "In Stock", image: "/5.jpeg" },
+    { id: 3, name: "Nissan Altima Headlight Assembly", make: "Nissan", model: "Altima", year: "2019", category: "Lightings", price: "$89.99", stock: "Limited Stock", image: "/6.jpeg" }
   ];
 
   const handleFilterChange = (field, value) => {
@@ -91,7 +85,6 @@ const PartsPage = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     console.log('Searching with filters:', searchFilters);
-    // In real app, this would trigger API call
   };
 
   const handlePartInquiry = (part) => {
@@ -101,7 +94,6 @@ const PartsPage = () => {
 
   const handleInquirySubmit = (e) => {
     e.preventDefault();
-    // Handle inquiry form submission
     alert('Parts inquiry submitted successfully!');
     setShowInquiryForm(false);
     setSelectedPart(null);
@@ -125,9 +117,7 @@ const PartsPage = () => {
           src={part.image} 
           alt={part.name}
           className="w-full h-32 object-cover"
-          onError={(e) => {
-            e.target.src = '/images/placeholder-part.jpg';
-          }}
+          onError={(e) => { e.target.src = '/images/placeholder-part.jpg'; }}
         />
         <div className={`absolute top-2 right-2 px-2 py-1 rounded text-xs font-medium ${
           part.stock === 'In Stock' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
@@ -139,21 +129,18 @@ const PartsPage = () => {
       <div className="p-4">
         <h3 className="font-semibold text-black mb-2 line-clamp-2">{part.name}</h3>
         <div className="text-sm text-black mb-2">
-          <div>{part.make} {part.model} ({part.year})</div>
+          <div>{part.make} {part.model} {part.year && `(${part.year})`}</div>
           <div>{part.category}</div>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-lg font-bold text-red-600">{part.price}</span>
-          <button
-            onClick={() => handlePartInquiry(part)}
-            className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition-colors text-sm font-medium"
-          >
-            INQUIRY
-          </button>
+          <button onClick={() => handlePartInquiry(part)} className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition-colors text-sm font-medium">INQUIRY</button>
         </div>
       </div>
     </div>
   );
+
+  const list = parts.length > 0 ? parts : sampleParts;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -166,81 +153,14 @@ const PartsPage = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Search Section */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <div className="flex items-center mb-4">
-            <FunnelIcon className="h-6 w-6 text-black mr-2" />
-            <h2 className="text-xl font-bold text-black">Parts Search Tool</h2>
-          </div>
-          
-          <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-black mb-2">Select Maker</label>
-              <select
-                value={searchFilters.make}
-                onChange={(e) => handleFilterChange('make', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-              >
-                <option value="" className="text-black">All Makes</option>
-                {makes.map((make) => (
-                  <option key={make} value={make} className="text-black">{make}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-black mb-2">Select Model</label>
-              <input
-                type="text"
-                value={searchFilters.model}
-                onChange={(e) => handleFilterChange('model', e.target.value)}
-                placeholder="Enter model"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-black"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-black mb-2">Select Year</label>
-              <select
-                value={searchFilters.year}
-                onChange={(e) => handleFilterChange('year', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
-              >
-                <option value="" className="text-black">All Years</option>
-                {years.map((year) => (
-                  <option key={year} value={year} className="text-black">{year}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-black mb-2">Model Code</label>
-              <input
-                type="text"
-                value={searchFilters.modelCode}
-                onChange={(e) => handleFilterChange('modelCode', e.target.value)}
-                placeholder="Enter model code"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-black"
-              />
-            </div>
-
-            <div className="flex items-end">
-              <button
-                type="submit"
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center"
-              >
-                <MagnifyingGlassIcon className="h-5 w-5 mr-2" />
-                Search
-              </button>
-            </div>
-          </form>
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Left Column - Categories */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-lg font-bold text-black mb-4">All Categories</h2>
+              <div className="flex items-center mb-4">
+                <FunnelIcon className="h-6 w-6 text-black mr-2" />
+                <h2 className="text-lg font-bold text-black">All Categories</h2>
+              </div>
               <div className="space-y-3">
                 {categories.map((category, index) => (
                   <CategoryCard key={index} category={category} />
@@ -249,120 +169,77 @@ const PartsPage = () => {
             </div>
           </div>
 
-          {/* Right Column - Parts Results */}
+          {/* Right Column - Search and Results */}
           <div className="lg:col-span-3">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-lg font-bold text-black">Search Results</h2>
-                <span className="text-sm text-black">{sampleParts.length} parts found</span>
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+              <div className="flex items-center mb-4">
+                <FunnelIcon className="h-6 w-6 text-black mr-2" />
+                <h2 className="text-lg font-bold text-black">Parts Search Tool</h2>
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {sampleParts.map((part) => (
-                  <PartCard key={part.id} part={part} />
-                ))}
-              </div>
-
-              {sampleParts.length === 0 && (
-                <div className="text-center py-12">
-                  <div className="text-gray-400 text-6xl mb-4">🔧</div>
-                  <h3 className="text-lg font-medium text-black mb-2">No parts found</h3>
-                  <p className="text-black">Try adjusting your search criteria</p>
+              <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Select Maker</label>
+                  <select value={searchFilters.make} onChange={(e) => handleFilterChange('make', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black">
+                    <option value="" className="text-black">All Makes</option>
+                    {makes.map((make) => (<option key={make} value={make} className="text-black">{make}</option>))}
+                  </select>
                 </div>
-              )}
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Select Model</label>
+                  <input type="text" value={searchFilters.model} onChange={(e) => handleFilterChange('model', e.target.value)} placeholder="Enter model" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-black" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Select Year</label>
+                  <select value={searchFilters.year} onChange={(e) => handleFilterChange('year', e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black">
+                    <option value="" className="text-black">All Years</option>
+                    {years.map((year) => (<option key={year} value={year} className="text-black">{year}</option>))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-black mb-2">Model Code</label>
+                  <input type="text" value={searchFilters.modelCode} onChange={(e) => handleFilterChange('modelCode', e.target.value)} placeholder="Enter model code" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-black" />
+                </div>
+                <div className="md:col-span-2 lg:col-span-1 flex items-end">
+                  <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded flex items-center justify-center">
+                    <MagnifyingGlassIcon className="w-5 h-5 mr-2" />
+                    Search
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            {/* Results */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {list.map((part) => (
+                <PartCard key={part.id} part={part} />
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Inquiry Form Modal */}
-        {showInquiryForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-              <h3 className="text-lg font-bold text-black mb-4">
-                Parts Inquiry - {selectedPart?.name}
-              </h3>
-              
-              <form onSubmit={handleInquirySubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-black mb-1">Destination Port</label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+        {/* Inquiry Modal */}
+        {showInquiryForm && selectedPart && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg p-6 w-full max-w-lg">
+              <h2 className="text-xl font-bold text-black mb-4">Parts Inquiry</h2>
+              <form onSubmit={handleInquirySubmit}>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm text-black mb-1">Name</label>
+                    <input type="text" className="w-full p-2 border rounded text-black" required />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-black mb-1">Email</label>
+                    <input type="email" className="w-full p-2 border rounded text-black" required />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="block text-sm text-black mb-1">Message</label>
+                    <textarea className="w-full p-2 border rounded text-black" rows="3" required />
+                  </div>
                 </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-black mb-1">Country Name</label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-black mb-1">Person Name</label>
-                  <input
-                    type="text"
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-black mb-1">Email</label>
-                  <input
-                    type="email"
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-black mb-1">Mobile</label>
-                  <input
-                    type="tel"
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-black mb-1">Address</label>
-                  <textarea
-                    rows="3"
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  ></textarea>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-black mb-1">Message</label>
-                  <textarea
-                    rows="3"
-                    placeholder="Additional details about your inquiry..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  ></textarea>
-                </div>
-
-                <div className="flex space-x-3 pt-4">
-                  <button
-                    type="submit"
-                    className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
-                  >
-                    Submit Inquiry
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowInquiryForm(false);
-                      setSelectedPart(null);
-                    }}
-                    className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
-                  >
-                    Cancel
-                  </button>
+                <div className="mt-4 flex justify-end space-x-2">
+                  <button type="button" onClick={() => setShowInquiryForm(false)} className="px-4 py-2 border rounded text-black">Cancel</button>
+                  <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">Send Inquiry</button>
                 </div>
               </form>
             </div>

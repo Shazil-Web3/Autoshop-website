@@ -1,11 +1,24 @@
 const express = require('express');
 const router = express.Router();
 const vehicleController = require('../controllers/vehicleController');
+const auth = require('../middleware/authMiddleware');
+const upload = require('../middleware/mediaUpload');
 
+// Public reads
 router.get('/', vehicleController.getAllVehicles);
+router.get('/inventory', vehicleController.getInventoryGrouped);
+router.get('/category/:category', vehicleController.getByCategory);
 router.get('/:id', vehicleController.getVehicleById);
-router.post('/', vehicleController.createVehicle);
-router.put('/:id', vehicleController.updateVehicle);
-router.delete('/:id', vehicleController.deleteVehicle);
+
+// Authenticated writes
+router.post(
+  '/',
+  auth.protect,
+  auth.roles('admin', 'dealer', 'agent'),
+  upload.fields([{ name: 'images', maxCount: 25 }, { name: 'video', maxCount: 1 }]),
+  vehicleController.createVehicle
+);
+router.put('/:id', auth.protect, auth.roles('admin'), vehicleController.updateVehicle);
+router.delete('/:id', auth.protect, auth.roles('admin'), vehicleController.deleteVehicle);
 
 module.exports = router; 

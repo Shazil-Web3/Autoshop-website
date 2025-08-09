@@ -25,7 +25,7 @@ const ProductDetailPage = ({ params }) => {
   };
 
   const category = categoryMap[unwrappedParams.type] || 'stockCars';
-  const product = inventory[category]?.find(p => p.id === parseInt(unwrappedParams.id));
+  const product = inventory[category]?.find(p => String(p.id || p._id) === String(unwrappedParams.id));
 
   // If product not found, show a fallback
   if (!product) {

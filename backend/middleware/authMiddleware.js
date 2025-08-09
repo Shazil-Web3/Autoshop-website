@@ -68,9 +68,9 @@ const authMiddleware = {
   },
 
   // Allow multiple roles
-  roles: (...roles) => {
+  roles: (...allowedRoles) => {
     return (req, res, next) => {
-      if (req.user && roles.includes(req.user.role)) {
+      if (req.user && allowedRoles.includes(req.user.role)) {
         // For agents and dealers, check if they're approved
         if ((req.user.role === 'agent' || req.user.role === 'dealer') && req.user.status !== 'approved') {
           return res.status(403).json({ message: 'Account not approved' });
@@ -79,10 +79,9 @@ const authMiddleware = {
         if (req.user.role === 'user' && req.user.status !== 'active') {
           return res.status(403).json({ message: 'Account not active' });
         }
-        next();
-      } else {
-        res.status(403).json({ message: 'Not authorized' });
+        return next();
       }
+      return res.status(403).json({ message: 'Not authorized' });
     };
   }
 };

@@ -3,6 +3,7 @@ import { useState, useMemo } from 'react';
 import { useGlobalState } from '../../../context/GlobalStateContext';
 import { PlusIcon, XMarkIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
+import api from '../../../services/api';
 
 const MAX_IMAGES = 25;
 
@@ -192,17 +193,70 @@ const AddProductPage = () => {
     try {
       // Format display price and set price/totalPrice for compatibility
       const formattedPrice = displayPrice ? `$${displayPrice.toLocaleString()}` : '';
-      const firstPreview = formData.imagePreviews[0] || '';
 
-      const cleanData = {
-        ...formData,
-        price: formattedPrice,
-        totalPrice: formattedPrice,
-        features: formData.features.filter(f => f.trim()),
-        image: firstPreview
-      };
+      // Build multipart form
+      const fd = new FormData();
 
-      addProduct(formData.category, cleanData);
+      if (formData.category === 'autoParts') {
+        // Parts creation
+        fd.append('name', formData.title);
+        fd.append('category', formData.partCategory || 'General');
+        fd.append('brand', formData.brand || formData.make || '');
+        fd.append('price', String(displayPrice || 0));
+        fd.append('stock', formData.stock || '0');
+        if (formData.compatibleVehicles?.length) {
+          fd.append('compatibleVehicles', JSON.stringify(formData.compatibleVehicles));
+        }
+        formData.images.forEach(file => fd.append('images', file));
+
+        const created = await api.createPart(fd);
+        // Optimistic update to UI
+        addProduct('autoParts', {
+          id: created._id,
+          name: created.name,
+          make: created.brand,
+          model: created.compatibleVehicles?.[0] || '',
+          year: formData.year,
+          category: created.category,
+          price: `$${Number(created.price || displayPrice || 0).toLocaleString()}`,
+          stock: created.stock > 0 ? 'In Stock' : 'Out of Stock',
+          image: created.images?.[0] || formData.imagePreviews[0] || ''
+        });
+      } else {
+        // Vehicles creation
+        fd.append('category', formData.category);
+        fd.append('title', formData.title);
+        fd.append('price', formattedPrice);
+        fd.append('totalPrice', formattedPrice);
+        fd.append('stockNo', formData.stockNo);
+        fd.append('mileage', formData.mileage);
+        fd.append('year', formData.year);
+        fd.append('engine', formData.engine);
+        fd.append('transmission', formData.transmission);
+        fd.append('location', formData.location);
+        fd.append('color', formData.color);
+        fd.append('fuel', formData.fuel);
+        fd.append('fuelType', formData.fuel);  // Add for compatibility
+        fd.append('drive', formData.drive);
+        fd.append('seats', formData.seats);
+        fd.append('doors', formData.doors);
+        fd.append('features', JSON.stringify(formData.features || []));
+        fd.append('condition', formData.condition);
+        fd.append('capacity', formData.capacity);
+        // Add make and model from formData if available
+        if (formData.make) fd.append('make', formData.make);
+        if (formData.model) fd.append('model', formData.model);
+        formData.images.forEach(file => fd.append('images', file));
+        if (formData.videoFile) fd.append('video', formData.videoFile);
+
+        const created = await api.createVehicle(fd);
+        // Optimistic UI update
+        addProduct(formData.category, {
+          ...created,
+          id: created._id,
+          image: created.image || formData.imagePreviews[0] || '',
+        });
+      }
       
       // Reset and revoke previews
       formData.imagePreviews.forEach(url => URL.revokeObjectURL(url));
@@ -253,6 +307,7 @@ const AddProductPage = () => {
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (error) {
       console.error('Error adding product:', error);
+      alert(error.message || 'Failed to add product');
     } finally {
       setIsSubmitting(false);
     }
