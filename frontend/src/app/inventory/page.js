@@ -101,7 +101,7 @@ const InventoryPageContent = () => {
             </span>
           </div>
           <div className="mt-4 text-base">
-            <div className="bg-gray-100 px-3 py-2 rounded font-medium text-black">Ref No. {vehicle.stockNo}</div>
+            <div className="bg-gray-100 px-3 py-2 rounded font-medium text-black">Reference ID: {vehicle.refNo || vehicle.stockNo}</div>
             <div className="text-sm text-black mt-2">
               <div className="bg-orange-500 text-white px-3 py-1 rounded text-sm inline-block">{type.toUpperCase()}</div>
             </div>
@@ -157,7 +157,7 @@ const InventoryPageContent = () => {
             <tbody>
               <tr>
                 <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Model code</td>
-                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium break-words whitespace-normal">-</td>
+                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium break-words whitespace-normal">{vehicle.modelCode || '-'}</td>
                 <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Steering</td>
                 <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium break-words whitespace-normal">Left</td>
                 <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Fuel</td>
@@ -167,7 +167,7 @@ const InventoryPageContent = () => {
               </tr>
               <tr>
                 <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Engine code</td>
-                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium break-words whitespace-normal">-</td>
+                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium break-words whitespace-normal">{vehicle.engineCode || '-'}</td>
                 <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Color</td>
                 <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium break-words whitespace-normal">{vehicle.color}</td>
                 <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Drive</td>
@@ -201,7 +201,7 @@ const InventoryPageContent = () => {
           <div className="mb-6">
             <span className="text-black text-sm font-medium">Total Price</span>
             <div className="text-red-600 text-lg font-semibold">{vehicle.totalPrice}</div>
-            <div className="text-sm text-black">CIF to Bahrain (RO/RO)</div>
+            <div className="text-sm text-black">Reference ID: {vehicle.refNo || '-'}</div>
           </div>
           <Link 
             href={`/inventory/${(type === 'Stock Car' ? 'stock-cars' : type.toLowerCase())}/${vehicle._id || vehicle.id}`}

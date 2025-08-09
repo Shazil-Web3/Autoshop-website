@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react';
 import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
 import { partsService } from '../../../services/partsService';
+import { inquiryService } from '../../../services/inquiryService';
+import apiService from '../../../services/api';
 
 const PartsPage = () => {
   const [searchFilters, setSearchFilters] = useState({
@@ -15,6 +17,8 @@ const PartsPage = () => {
   const [showInquiryForm, setShowInquiryForm] = useState(false);
   const [selectedPart, setSelectedPart] = useState(null);
   const [parts, setParts] = useState([]);
+  const [successMsg, setSuccessMsg] = useState('');
+  const [inquiryForm, setInquiryForm] = useState({ name: '', email: '', message: '' });
 
   useEffect(() => {
     const loadParts = async () => {
@@ -22,6 +26,7 @@ const PartsPage = () => {
         const data = await partsService.getAllParts();
         const mapped = Array.isArray(data) ? data.map(p => ({
           id: p._id || p.id,
+          refNo: p.refNo,
           name: p.name,
           make: p.brand || '',
           model: p.compatibleVehicles?.[0] || '',
@@ -37,6 +42,13 @@ const PartsPage = () => {
       }
     };
     loadParts();
+  }, []);
+
+  useEffect(() => {
+    const user = apiService.getCurrentUser();
+    if (user) {
+      setInquiryForm(prev => ({ ...prev, name: `${user.firstName || ''} ${user.lastName || ''}`.trim(), email: user.email || '' }));
+    }
   }, []);
 
   const makes = [
@@ -84,19 +96,41 @@ const PartsPage = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    console.log('Searching with filters:', searchFilters);
   };
 
   const handlePartInquiry = (part) => {
+    const user = apiService.getCurrentUser();
+    if (!user) {
+      // open redirect modal to login/signup
+      window.location.href = '/login';
+      return;
+    }
     setSelectedPart(part);
     setShowInquiryForm(true);
   };
 
-  const handleInquirySubmit = (e) => {
+  const submitPartInquiry = async (e) => {
     e.preventDefault();
-    alert('Parts inquiry submitted successfully!');
-    setShowInquiryForm(false);
-    setSelectedPart(null);
+    try {
+      await inquiryService.submitInquiry({
+        name: inquiryForm.name,
+        email: inquiryForm.email,
+        phone: '',
+        subject: 'Product Inquiry',
+        message: inquiryForm.message || '',
+        actionType: 'price_quote',
+        productTitle: selectedPart?.name,
+        refNo: selectedPart?.refNo
+      });
+      setSuccessMsg('Your parts inquiry has been sent. We will contact you shortly.');
+      setShowInquiryForm(false);
+      setSelectedPart(null);
+      setInquiryForm({ name: inquiryForm.name, email: inquiryForm.email, message: '' });
+      setTimeout(() => setSuccessMsg(''), 4000);
+    } catch (err) {
+      setSuccessMsg('Failed to send inquiry. Please try again.');
+      setTimeout(() => setSuccessMsg(''), 4000);
+    }
   };
 
   const CategoryCard = ({ category }) => (
@@ -131,6 +165,7 @@ const PartsPage = () => {
         <div className="text-sm text-black mb-2">
           <div>{part.make} {part.model} {part.year && `(${part.year})`}</div>
           <div>{part.category}</div>
+          <div className="mt-1 text-gray-600">Reference ID: <span className="font-medium text-gray-900">{part.refNo || '-'}</span></div>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-lg font-bold text-red-600">{part.price}</span>
@@ -140,7 +175,7 @@ const PartsPage = () => {
     </div>
   );
 
-  const list = parts.length > 0 ? parts : sampleParts;
+  const list = parts;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -153,6 +188,12 @@ const PartsPage = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {successMsg && (
+          <div className="mb-6 bg-green-50 border border-green-200 text-green-800 p-4 rounded-lg flex items-start">
+            <span className="mr-2">✅</span>
+            <div className="font-medium">{successMsg}</div>
+          </div>
+        )}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Left Column - Categories */}
           <div className="lg:col-span-1">
@@ -186,7 +227,7 @@ const PartsPage = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-black mb-2">Select Model</label>
-                  <input type="text" value={searchFilters.model} onChange={(e) => handleFilterChange('model', e.target.value)} placeholder="Enter model" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black placeholder-black" />
+                  <input type="text" value={searchFilters.model} onChange={(e) => handleFilterChange('model', e.target.value)} placeholder="Enter model" className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline_none focus:ring-2 focus:ring-blue-500 text-black placeholder-black" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-black mb-2">Select Year</label>
@@ -220,21 +261,21 @@ const PartsPage = () => {
         {/* Inquiry Modal */}
         {showInquiryForm && selectedPart && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-lg p-6 w-full max-w-lg">
+            <div className="bg-white rounded-lg p-6 w_full max-w-lg">
               <h2 className="text-xl font-bold text-black mb-4">Parts Inquiry</h2>
-              <form onSubmit={handleInquirySubmit}>
+              <form onSubmit={submitPartInquiry}>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm text-black mb-1">Name</label>
-                    <input type="text" className="w-full p-2 border rounded text-black" required />
+                    <input type="text" value={inquiryForm.name} onChange={(e) => setInquiryForm(prev => ({ ...prev, name: e.target.value }))} className="w-full p-2 border rounded text-black" required />
                   </div>
                   <div>
                     <label className="block text-sm text-black mb-1">Email</label>
-                    <input type="email" className="w-full p-2 border rounded text-black" required />
+                    <input type="email" value={inquiryForm.email} onChange={(e) => setInquiryForm(prev => ({ ...prev, email: e.target.value }))} className="w-full p-2 border rounded text-black" required />
                   </div>
                   <div className="col-span-2">
                     <label className="block text-sm text-black mb-1">Message</label>
-                    <textarea className="w-full p-2 border rounded text-black" rows="3" required />
+                    <textarea value={inquiryForm.message} onChange={(e) => setInquiryForm(prev => ({ ...prev, message: e.target.value }))} className="w-full p-2 border rounded text-black" rows="3" required />
                   </div>
                 </div>
                 <div className="mt-4 flex justify-end space-x-2">

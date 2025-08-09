@@ -39,16 +39,12 @@ const DashboardPage = () => {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      // Load vehicles and parts data
-      // Note: You'll need to add these methods to your API service
-      // const vehiclesData = await apiService.getAllVehicles();
-      // const partsData = await apiService.getAllParts();
-      // setVehicles(vehiclesData.vehicles || []);
-      // setParts(partsData.parts || []);
-      
-      // For now, using placeholder data
-      setVehicles([]);
-      setParts([]);
+      const [vehiclesData, partsData] = await Promise.all([
+        apiService.getAllVehicles().catch(() => []),
+        apiService.getAllParts().catch(() => [])
+      ]);
+      setVehicles(Array.isArray(vehiclesData) ? vehiclesData : vehiclesData.vehicles || vehiclesData);
+      setParts(Array.isArray(partsData) ? partsData : partsData.parts || partsData);
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -82,7 +78,7 @@ const DashboardPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify_between mb-4">
             <div className="flex items-center space-x-4">
               <Link
                 href="/admin"
@@ -131,7 +127,7 @@ const DashboardPage = () => {
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-gray-900">Vehicles ({vehicles.length})</h2>
                 <Link
-                  href="/admin/product-management"
+                  href="/admin/product-management?tab=vehicles"
                   className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                 >
                   View All
@@ -183,7 +179,7 @@ const DashboardPage = () => {
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-gray-900">Parts ({parts.length})</h2>
                 <Link
-                  href="/admin/product-management"
+                  href="/admin/product-management?tab=parts"
                   className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                 >
                   View All

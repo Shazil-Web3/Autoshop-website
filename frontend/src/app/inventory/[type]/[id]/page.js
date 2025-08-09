@@ -41,21 +41,25 @@ const ProductDetailPage = ({ params }) => {
     );
   }
 
-  // Create images array from the product image
-  const images = [product.image, "/5.jpeg", "/6.jpeg", "/7.jpeg", "/4.jpg", "/5.jpeg", "/6.jpeg", "/7.jpeg"];
+  // Use only product-provided images (Cloudinary) for gallery
+  const images = Array.isArray(product.images) && product.images.length > 0
+    ? product.images
+    : (product.image ? [product.image] : []);
 
   // Create specs object from product data with shorter labels
   const specs = {
     mileage: product.mileage,
     year: product.year,
     engine: product.engine,
+    engineCode: product.engineCode,
+    modelCode: product.modelCode,
     transmission: product.transmission,
     fuel: product.fuel,
     refNo: product.stockNo,
     chassis: "WDDWF4JB0JR123456", // Shortened
     engineSize: product.engine,
     location: product.location,
-    version: product.title.split('/')[1] || "Standard",
+    version: product.title.split('/')?.[1] || "Standard",
     drive: product.drive || "2WD", // Shortened
     transType: product.transmission, // Shortened
     regYear: `${product.year}-`, // Shortened
@@ -126,31 +130,39 @@ const ProductDetailPage = ({ params }) => {
             <div className="lg:w-2/3 p-6">
               {/* Main Image */}
               <div className="relative h-96 mb-4">
-                <Image
-                  src={images[currentImageIndex]}
-                  alt={product.title}
-                  fill
-                  className="object-cover rounded-lg"
-                />
+                {images.length > 0 && (
+                  <Image
+                    src={images[currentImageIndex]}
+                    alt={product.title}
+                    fill
+                    className="object-cover rounded-lg"
+                  />
+                )}
                 
                 {/* Navigation Arrows */}
-                <button
-                  onClick={prevImage}
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all"
-                >
-                  <ChevronLeftIcon className="w-6 h-6 text-gray-800" />
-                </button>
-                <button
-                  onClick={nextImage}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all"
-                >
-                  <ChevronRightIcon className="w-6 h-6 text-gray-800" />
-                </button>
+                {images.length > 1 && (
+                  <>
+                    <button
+                      onClick={prevImage}
+                      className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all"
+                    >
+                      <ChevronLeftIcon className="w-6 h-6 text-gray-800" />
+                    </button>
+                    <button
+                      onClick={nextImage}
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-80 hover:bg-opacity-100 rounded-full p-2 shadow-lg transition-all"
+                    >
+                      <ChevronRightIcon className="w-6 h-6 text-gray-800" />
+                    </button>
+                  </>
+                )}
                 
                 {/* Image Counter */}
-                <div className="absolute bottom-4 right-4 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-sm">
-                  {currentImageIndex + 1}/{images.length}
-                </div>
+                {images.length > 0 && (
+                  <div className="absolute bottom-4 right-4 bg-black bg-opacity-70 text-white px-3 py-1 rounded-full text-sm">
+                    {currentImageIndex + 1}/{images.length}
+                  </div>
+                )}
               </div>
 
               {/* Reference Number */}
@@ -159,25 +171,25 @@ const ProductDetailPage = ({ params }) => {
               </div>
               
               {/* Thumbnails */}
-              {showThumbnails && (
+              {showThumbnails && images.length > 1 && (
                 <div className="mb-4">
                   <div className="grid grid-cols-5 gap-2">
-                    {images.slice(0, 20).map((image, index) => (
-                    <button
-                      key={index}
+                    {images.map((image, index) => (
+                      <button
+                        key={index}
                         onClick={() => goToImage(index)}
                         className={`relative h-16 rounded overflow-hidden border-2 transition-all ${
                           currentImageIndex === index ? 'border-blue-500' : 'border-gray-200'
                         }`}
                       >
                         <Image
-                        src={image}
+                          src={image}
                           alt={`Thumbnail ${index + 1}`}
                           fill
                           className="object-cover"
-                      />
-                    </button>
-                  ))}
+                        />
+                      </button>
+                    ))}
                   </div>
                 </div>
               )}
@@ -229,11 +241,14 @@ const ProductDetailPage = ({ params }) => {
 
               {/* Pricing Section */}
               <div className="mb-6">
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify_between mb-2">
                   <span className="text-3xl font-bold text-red-600">{product.price}</span>
                 </div>
+                <div className="text-sm text-gray-600 mb-1">
+                  Reference ID: <span className="font-semibold">{product.refNo || '-'}</span>
+                </div>
                 <div className="text-sm text-gray-600 mb-4">
-                  Total Price: <span className="font-semibold">{product.totalPrice}</span> C&F BAHRAIN
+                  Total Price: <span className="font-semibold">{product.totalPrice}</span>
                 </div>
                 
                 {/* Action Buttons */}
@@ -278,7 +293,7 @@ const ProductDetailPage = ({ params }) => {
               {/* Specifications Table */}
               <div className="mb-6">
                 <h2 className="text-lg font-bold text-gray-900 mb-4">SPECS</h2>
-                <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <div className="bg-white rounded-lg border border-gray-200 overflow_hidden">
                   <div className="grid grid-cols-2">
                     <div className="border-r border-gray-200">
                       {Object.entries(specs).slice(0, Math.ceil(Object.keys(specs).length / 2)).map(([key, value]) => (
@@ -311,7 +326,8 @@ const ProductDetailPage = ({ params }) => {
               model: product.title,
               year: product.year,
               price: product.price,
-              stockNo: product.stockNo
+              stockNo: product.stockNo,
+              refNo: product.refNo || product.stockNo
             }}
             onClose={() => setShowInquiryForm(false)}
           />

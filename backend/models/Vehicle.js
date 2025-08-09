@@ -10,6 +10,7 @@ const vehicleSchema = new mongoose.Schema({
 
   // Display fields used by the frontend UI
   title: { type: String },
+  refNo: { type: String, index: true, unique: true, sparse: true },
   price: { type: String },            // Display price (e.g., "$10,330")
   totalPrice: { type: String },       // Display total price
   originalPrice: { type: String },    // Optional struck-through price
@@ -19,6 +20,8 @@ const vehicleSchema = new mongoose.Schema({
   mileage: { type: String },          // e.g., "162,182 km"
   year: { type: String },             // e.g., "2018"
   engine: { type: String },           // e.g., "3,342cc"
+  engineCode: { type: String },       // e.g., "1NZ-FE"
+  modelCode: { type: String },        // e.g., "DBA-XXX"
   transmission: { type: String },
   location: { type: String },
   color: { type: String },

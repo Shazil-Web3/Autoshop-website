@@ -21,6 +21,15 @@ const inquirySchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  actionType: {
+    type: String,
+    enum: ['price_quote', 'buy_now'],
+    default: 'price_quote'
+  },
+  productId: { type: String },
+  productTitle: { type: String },
+  productCategory: { type: String },
+  productImage: { type: String },
   status: {
     type: String,
     enum: ['new', 'in-progress', 'resolved'],

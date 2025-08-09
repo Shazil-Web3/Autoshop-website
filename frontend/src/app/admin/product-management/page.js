@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import apiService from '../../../services/api';
 import { 
   EyeIcon,
@@ -15,6 +15,7 @@ import {
 
 const ProductManagementPage = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [vehicles, setVehicles] = useState([]);
   const [parts, setParts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -28,22 +29,21 @@ const ProductManagementPage = () => {
       router.push('/login');
       return;
     }
+    const tab = searchParams.get('tab');
+    if (tab === 'vehicles') setSelectedCategory('vehicles');
+    if (tab === 'parts') setSelectedCategory('parts');
     loadData();
-  }, [router]);
+  }, [router, searchParams]);
 
   const loadData = async () => {
     setIsLoading(true);
     try {
-      // Load vehicles and parts data
-      // Note: You'll need to add these methods to your API service
-      // const vehiclesData = await apiService.getAllVehicles();
-      // const partsData = await apiService.getAllParts();
-      // setVehicles(vehiclesData.vehicles || []);
-      // setParts(partsData.parts || []);
-      
-      // For now, using placeholder data
-      setVehicles([]);
-      setParts([]);
+      const [vehiclesData, partsData] = await Promise.all([
+        apiService.getAllVehicles(),
+        apiService.getAllParts()
+      ]);
+      setVehicles(Array.isArray(vehiclesData) ? vehiclesData : vehiclesData.vehicles || vehiclesData);
+      setParts(Array.isArray(partsData) ? partsData : partsData.parts || partsData);
     } catch (error) {
       console.error('Error loading data:', error);
       setMessage('Error loading products');
@@ -55,24 +55,16 @@ const ProductManagementPage = () => {
   const handleDelete = async (productId, type) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
-        // Add delete API call here
-        // await apiService.deleteProduct(productId, type);
+        if (type === 'vehicle') {
+          await apiService.deleteVehicle(productId);
+        } else {
+          await apiService.deletePart(productId);
+        }
         setMessage('Product deleted successfully');
         loadData();
       } catch (error) {
-        setMessage('Error deleting product');
+        setMessage(error.message || 'Error deleting product');
       }
-    }
-  };
-
-  const handlePublish = async (productId, type) => {
-    try {
-      // Add publish API call here
-      // await apiService.publishProduct(productId, type);
-      setMessage('Product published successfully');
-      loadData();
-    } catch (error) {
-      setMessage('Error publishing product');
     }
   };
 
@@ -228,7 +220,7 @@ const ProductManagementPage = () => {
                       Price
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
+                      Reference ID
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Location
@@ -248,7 +240,7 @@ const ProductManagementPage = () => {
                               <img
                                 className="h-12 w-16 object-cover rounded"
                                 src={product.images[0]}
-                                alt={product.title}
+                                alt={product.title || product.name}
                               />
                             ) : (
                               <div className="h-12 w-16 bg-gray-200 rounded flex items-center justify-center">
@@ -262,10 +254,10 @@ const ProductManagementPage = () => {
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900 line-clamp-2">
-                              {product.title}
+                              {product.title || product.name}
                             </div>
                             <div className="text-sm text-gray-500">
-                              {product.description?.substring(0, 50)}...
+                              {(product.description || '').substring(0, 50)}...
                             </div>
                           </div>
                         </div>
@@ -288,17 +280,13 @@ const ProductManagementPage = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
-                          ${product.price?.toLocaleString()}
+                          {typeof product.price === 'number' ? `$${product.price.toLocaleString()}` : (product.price || '-')}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          product.status === 'published' 
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          {product.status || 'draft'}
-                        </span>
+                        <div className="text-sm font-medium text-gray-900">
+                          {product.refNo || product.stockNo || '-'}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {product.location || 'N/A'}
@@ -317,17 +305,6 @@ const ProductManagementPage = () => {
                           >
                             <PencilIcon className="w-4 h-4" />
                           </button>
-                          {product.status !== 'published' && (
-                            <button
-                              onClick={() => handlePublish(product._id, product.type)}
-                              className="text-green-600 hover:text-green-900 p-1"
-                              title="Publish Product"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                              </svg>
-                            </button>
-                          )}
                           <button
                             onClick={() => handleDelete(product._id, product.type)}
                             className="text-red-600 hover:text-red-900 p-1"

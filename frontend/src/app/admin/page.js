@@ -21,6 +21,7 @@ const AdminPage = () => {
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
   const [dealersCount, setDealersCount] = useState(0);
   const [agentsCount, setAgentsCount] = useState(0);
+  const [usersCount, setUsersCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
 
@@ -43,19 +44,17 @@ const AdminPage = () => {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      // Load data without showing errors
-      const [applications, pendingCount] = await Promise.all([
+      const [applications, pendingCount, stats] = await Promise.all([
         apiService.getPendingApplications().catch(() => []),
-        apiService.getPendingProductRequestsCount().catch(() => ({ pendingCount: 0 }))
+        apiService.getPendingProductRequestsCount().catch(() => ({ pendingCount: 0 })),
+        fetch((process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api') + '/admin/dashboard', { headers: apiService.getAuthHeaders() }).then(r => r.json()).catch(() => ({}))
       ]);
       setPendingApplications(applications || []);
       setPendingRequestsCount(pendingCount?.pendingCount || 0);
-      
-      // Set mock counts for dealers and agents (you can replace with actual API calls)
-      setDealersCount(5); // Mock data
-      setAgentsCount(3);  // Mock data
+      setDealersCount(Number(stats?.dealersCount || 0));
+      setAgentsCount(Number(stats?.agentsCount || 0));
+      setUsersCount(Number(stats?.usersCount || 0));
     } catch (error) {
-      // Silently handle errors
       console.error('Error loading data:', error);
     } finally {
       setIsLoading(false);
@@ -183,19 +182,19 @@ const AdminPage = () => {
 
         {/* Quick Stats */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <button onClick={() => router.push('/admin/users?role=dealer')} className="bg-white rounded-lg shadow-sm p-6 text-left">
             <div className="flex items-center">
               <div className="p-2 bg-blue-100 rounded-lg">
-                <UserGroupIcon className="w-6 h-6 text-blue-600" />
+                <UserGroupIcon className="w-6 h-6 text_blue-600" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Dealers</p>
                 <p className="text-2xl font-semibold text-gray-900">{dealersCount}</p>
               </div>
             </div>
-          </div>
+          </button>
           
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <button onClick={() => router.push('/admin/users?role=agent')} className="bg-white rounded-lg shadow-sm p-6 text-left">
             <div className="flex items-center">
               <div className="p-2 bg-yellow-100 rounded-lg">
                 <ClipboardDocumentListIcon className="w-6 h-6 text-yellow-600" />
@@ -205,19 +204,19 @@ const AdminPage = () => {
                 <p className="text-2xl font-semibold text-gray-900">{agentsCount}</p>
               </div>
             </div>
-          </div>
+          </button>
           
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <button onClick={() => router.push('/admin/users?role=user')} className="bg-white rounded-lg shadow-sm p-6 text-left">
             <div className="flex items-center">
               <div className="p-2 bg-green-100 rounded-lg">
                 <ChartBarIcon className="w-6 h-6 text-green-600" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Users</p>
-                <p className="text-2xl font-semibold text-gray-900">{dealersCount + agentsCount + 1}</p>
+                <p className="text-2xl font-semibold text-gray-900">{usersCount}</p>
               </div>
             </div>
-          </div>
+          </button>
         </div>
       </div>
     </div>

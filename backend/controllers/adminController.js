@@ -1,18 +1,37 @@
 const User = require('../models/User');
 const Vehicle = require('../models/Vehicle');
 const Inquiry = require('../models/Inquiry');
+const Part = require('../models/Part');
 
 const adminController = {
   getDashboardStats: async (req, res) => {
     try {
-      const totalUsers = await User.countDocuments();
-      const totalVehicles = await Vehicle.countDocuments();
-      const totalInquiries = await Inquiry.countDocuments();
+      const [
+        totalUsers,
+        totalVehicles,
+        totalParts,
+        totalInquiries,
+        dealersCount,
+        agentsCount,
+        basicUsersCount
+      ] = await Promise.all([
+        User.countDocuments(),
+        Vehicle.countDocuments(),
+        Part.countDocuments(),
+        Inquiry.countDocuments(),
+        User.countDocuments({ role: 'dealer' }),
+        User.countDocuments({ role: 'agent' }),
+        User.countDocuments({ role: 'user' })
+      ]);
       
       res.json({
         totalUsers,
         totalVehicles,
-        totalInquiries
+        totalParts,
+        totalInquiries,
+        dealersCount,
+        agentsCount,
+        usersCount: basicUsersCount
       });
     } catch (error) {
       res.status(500).json({ message: error.message });

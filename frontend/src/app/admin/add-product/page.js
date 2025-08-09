@@ -232,6 +232,8 @@ const AddProductPage = () => {
         fd.append('mileage', formData.mileage);
         fd.append('year', formData.year);
         fd.append('engine', formData.engine);
+        fd.append('engineCode', formData.engineCode);
+        fd.append('modelCode', formData.modelCode);
         fd.append('transmission', formData.transmission);
         fd.append('location', formData.location);
         fd.append('color', formData.color);

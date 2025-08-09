@@ -182,7 +182,8 @@ const SubmitProductRequest = () => {
         features: (formData.features || []).filter(Boolean),
         image: formData.imagePreviews[0] || ''
       };
-      await apiService.createProductRequest({ requestType: formData.category, productData: payload });
+      const requestType = formData.category === 'autoParts' ? 'part' : 'vehicle';
+      await apiService.createProductRequest({ requestType, productData: { ...payload, category: formData.category } });
       setMessage('Product request submitted successfully!');
       // Revoke previews
       formData.imagePreviews.forEach(url => URL.revokeObjectURL(url));

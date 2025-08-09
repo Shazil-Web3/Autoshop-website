@@ -53,6 +53,8 @@ const productRequestSchema = new mongoose.Schema({
     transmission: String,
     color: String,
     engine: String,
+    engineCode: String,
+    modelCode: String,
     stockNo: String,
     totalPrice: String,
     drive: String,

@@ -277,12 +277,46 @@ class ApiService {
     return this.handleResponse(response);
   }
 
+  // Vehicles: list
+  async getAllVehicles() {
+    const response = await fetch(`${this.baseURL}/vehicles`, {
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Vehicles: delete
+  async deleteVehicle(id) {
+    const response = await fetch(`${this.baseURL}/vehicles/${id}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
   // Parts: create via FormData
   async createPart(formData) {
     const response = await fetch(`${this.baseURL}/parts`, {
       method: 'POST',
       headers: this.getAuthOnlyHeader(),
       body: formData,
+    });
+    return this.handleResponse(response);
+  }
+
+  // Parts: list
+  async getAllParts() {
+    const response = await fetch(`${this.baseURL}/parts`, {
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
+  // Parts: delete
+  async deletePart(id) {
+    const response = await fetch(`${this.baseURL}/parts/${id}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
     });
     return this.handleResponse(response);
   }

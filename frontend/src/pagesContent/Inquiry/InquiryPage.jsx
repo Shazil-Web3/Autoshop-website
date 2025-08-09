@@ -1,5 +1,7 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import apiService from '../../services/api';
+import { inquiryService } from '../../services/inquiryService';
 
 const InquiryPage = () => {
   const [formData, setFormData] = useState({
@@ -27,7 +29,21 @@ const InquiryPage = () => {
     message: ''
   });
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [successMsg, setSuccessMsg] = useState('');
+
+  useEffect(() => {
+    const user = apiService.getCurrentUser();
+    if (user) {
+      const name = [user.firstName, user.lastName].filter(Boolean).join(' ').trim();
+      setFormData(prev => ({
+        ...prev,
+        name: name || prev.name,
+        email: user.email || prev.email
+        // Keep tel/address empty as requested
+      }));
+    }
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -37,11 +53,55 @@ const InquiryPage = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically send the form data to your backend
-    console.log('Form submitted:', formData);
-    alert('Inquiry submitted successfully! We will contact you soon.');
+    setSuccessMsg('');
+    const user = apiService.getCurrentUser();
+    if (!user) {
+      setLoginModalOpen(true);
+      return;
+    }
+    try {
+      // Build detailed message with all fields
+      const lines = [
+        `Destination Country: ${formData.destinationCountry || '-'}`,
+        `Destination Port: ${formData.destinationPort || '-'}`,
+        `Make: ${formData.make || '-'}`,
+        `Body Type: ${formData.bodyType || '-'}`,
+        `Transmission: ${formData.transmission || '-'}`,
+        `Steering: ${formData.steering || '-'}`,
+        `Year From: ${formData.yearFrom || '-'}`,
+        `Year To: ${formData.yearTo || '-'}`,
+        `Price From: ${formData.priceFrom || '-'}`,
+        `Price To: ${formData.priceTo || '-'}`,
+        `Mileage From: ${formData.mileageFrom || '-'}`,
+        `Mileage To: ${formData.mileageTo || '-'}`,
+        `Address: ${formData.address || '-'}`,
+      ];
+      const payload = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.tel,
+        subject: 'Product Inquiry',
+        message: `${formData.message || ''}${formData.message ? '\n\n' : ''}${lines.join('\n')}`,
+        actionType: 'price_quote'
+      };
+      await inquiryService.submitInquiry(payload);
+      setSuccessMsg('Your inquiry has been sent. Our team will contact you shortly.');
+      // Optionally reset fields except name/email
+      setFormData(prev => ({
+        ...prev,
+        tel: '',
+        address: '',
+        destinationCountry: '',
+        destinationPort: '',
+        make: '', bodyType: '', transmission: '', steering: '',
+        yearFrom: '', yearTo: '', priceFrom: '', priceTo: '', mileageFrom: '', mileageTo: '',
+        message: ''
+      }));
+    } catch (err) {
+      setSuccessMsg('Failed to send inquiry. Please try again.');
+    }
   };
 
   const countries = [
@@ -128,6 +188,13 @@ const InquiryPage = () => {
               <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
                 Vehicle & Contact Information
               </h2>
+
+              {successMsg && (
+                <div className="mb-6 bg-green-50 border border-green-200 text-green-800 p-4 rounded-lg flex items-start">
+                  <span className="mr-2">✅</span>
+                  <div className="font-medium">{successMsg}</div>
+                </div>
+              )}
               
               <form onSubmit={handleSubmit} className="space-y-8">
                 {/* Contact Information */}
@@ -273,7 +340,7 @@ const InquiryPage = () => {
                       >
                         <option value="">Make</option>
                         {makes.map((make, index) => (
-                          <option key={index} value={make}>{make}</option>
+                          <option key={index} value={make} className="text-black">{make}</option>
                         ))}
                       </select>
                     </div>
@@ -373,7 +440,7 @@ const InquiryPage = () => {
                         value={formData.priceFrom}
                         onChange={handleInputChange}
                         min="0"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black placeholder-black"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline_none focus:ring-2 focus:ring-orange-500 text-black placeholder-black"
                         placeholder="From"
                       />
                     </div>
@@ -482,6 +549,21 @@ const InquiryPage = () => {
           </div>
         </div>
       </section>
+
+      {/* Login / Signup Modal */}
+      {loginModalOpen && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-96">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Please sign in to continue</h3>
+            <p className="text-sm text-gray-600 mb-4">You need to log in or create an account to submit an inquiry.</p>
+            <div className="flex gap-3">
+              <a href="/login" className="flex-1 text-center bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md">Log In</a>
+              <a href="/signup" className="flex-1 text-center bg-green-600 hover:bg-green-700 text-white py-2 rounded-md">Sign Up</a>
+            </div>
+            <button onClick={() => setLoginModalOpen(false)} className="mt-4 w-full text-center text-gray-600 hover:text-gray-800 text-sm">Cancel</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

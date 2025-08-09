@@ -1,5 +1,16 @@
 const Part = require('../models/Part');
 const { uploadImage } = require('../utils/cloudinary');
+const Counter = require('../models/Counter');
+
+async function nextPartRefNo() {
+  const key = 'part_ref';
+  const doc = await Counter.findOneAndUpdate(
+    { key },
+    { $inc: { seq: 1 } },
+    { upsert: true, new: true }
+  );
+  return `APT-${String(doc.seq || 1).padStart(6, '0')}`;
+}
 
 const partController = {
   getAllParts: async (req, res) => {
@@ -42,6 +53,9 @@ const partController = {
       if (images.length > 0) {
         payload.images = images;
       }
+
+      // Generate reference number for parts
+      payload.refNo = await nextPartRefNo();
 
       const part = await Part.create(payload);
       res.status(201).json(part);

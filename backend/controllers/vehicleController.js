@@ -1,5 +1,6 @@
 const Vehicle = require('../models/Vehicle');
 const { uploadImage, uploadVideo } = require('../utils/cloudinary');
+const Counter = require('../models/Counter');
 
 const extractDigits = (str) => {
   if (typeof str !== 'string') return undefined;
@@ -18,6 +19,18 @@ const guessMakeModelFromTitle = (title) => {
   }
   return { make: parts[0], model: parts[1] };
 };
+
+async function nextRefNo() {
+  const key = 'vehicle_ref';
+  const doc = await Counter.findOneAndUpdate(
+    { key },
+    { $inc: { seq: 1 } },
+    { upsert: true, new: true }
+  );
+  // Format like AUT-000001
+  const seq = doc.seq || 1;
+  return `AUT-${String(seq).padStart(6, '0')}`;
+}
 
 const vehicleController = {
   getAllVehicles: async (req, res) => {
@@ -108,6 +121,9 @@ const vehicleController = {
       // Ensure category default
       if (!payload.category) payload.category = 'stockCars';
       if (!payload.status) payload.status = 'available';
+
+      // Generate unique sequential reference number
+      payload.refNo = await nextRefNo();
 
       // Bypass Mongoose validators completely using raw collection insert
       const now = new Date();
