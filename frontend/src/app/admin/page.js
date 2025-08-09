@@ -96,6 +96,14 @@ const AdminPage = () => {
       icon: CogIcon,
       color: 'bg-purple-500',
       href: '/admin/product-management'
+    },
+    {
+      id: 'banners-management',
+      title: 'Homepage Banners & Ads',
+      description: 'Update hero carousel and homepage advertisement images',
+      icon: ClipboardDocumentListIcon,
+      color: 'bg-indigo-500',
+      href: '/admin/banners'
     }
   ];
 

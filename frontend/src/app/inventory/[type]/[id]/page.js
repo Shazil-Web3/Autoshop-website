@@ -183,7 +183,7 @@ const ProductDetailPage = ({ params }) => {
               )}
 
               {/* Action Buttons */}
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between mb-6">
                 <div className="flex space-x-2">
                   <button 
                     onClick={handleShare}
@@ -199,6 +199,24 @@ const ProductDetailPage = ({ params }) => {
                 >
                   {showThumbnails ? 'Hide thumbnails' : 'Show thumbnails'}
                 </button>
+              </div>
+
+              {/* Features moved below gallery */}
+              <div className="mt-4">
+                <h2 className="text-lg font-bold text-gray-900 mb-3">FEATURES</h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  {(product.features || [
+                    "Power Steering","Airbag","Power Seat","Back Camera","Side Airbag","Power Mirror","Navigation",
+                    "CD Player","Sun Roof","Leather Seat","Alloy Wheels","Radio","A/C","ABS","TV","CD Changer",
+                    "DVD","Rear Spoiler","Back Tire","Grill Guard","Wheel Spanner","Jack","Spare Tire",
+                    "Keyless Entry","Central Looking","Push Start","Fog Lights","360 Degree Camera","Body Kit",
+                    "ESC","Side Skirts","Front Lip Spoiler","Turbo","Power Slide Door"
+                  ]).map((feature, index) => (
+                    <div key={index} className={`px-3 py-2 rounded text-sm font-medium ${index < 7 ? 'bg-orange-100 text-orange-800' : 'bg-gray-100 text-gray-800'}`}>
+                      {feature}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -279,27 +297,6 @@ const ProductDetailPage = ({ params }) => {
                       ))}
                     </div>
                   </div>
-                </div>
-              </div>
-
-              {/* Features Section */}
-              <div>
-                <h2 className="text-lg font-bold text-gray-900 mb-4">FEATURES</h2>
-                <div className="grid grid-cols-2 gap-2">
-                  {(product.features || ["Power Steering", "Airbag", "Power Seat", "Back Camera", "Side Airbag", "Power Mirror", "Navigation",
-                    "CD Player", "Sun Roof", "Leather Seat", "Alloy Wheels", "Radio", "A/C", "ABS", "TV", "CD Changer", 
-                    "DVD", "Rear Spoiler", "Back Tire", "Grill Guard", "Wheel Spanner", "Jack", "Spare Tire", 
-                    "Keyless Entry", "Central Looking", "Push Start", "Fog Lights", "360 Degree Camera", "Body Kit", 
-                    "ESC", "Side Skirts", "Front Lip Spoiler", "Turbo", "Power Slide Door"]).map((feature, index) => (
-                    <div
-                      key={index}
-                      className={`px-3 py-2 rounded text-sm font-medium ${
-                        index < 7 ? 'bg-orange-100 text-orange-800' : 'bg-gray-100 text-gray-800'
-                      }`}
-                    >
-                      {feature}
-                    </div>
-                  ))}
                 </div>
               </div>
             </div>

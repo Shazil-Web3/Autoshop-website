@@ -5,8 +5,10 @@ import FilterModal from "../components/FilterModal";
 import Header from "../components/Header";
 import ImageSlider from "../components/ImageSlider";
 import WhatsAppButton from "../components/WhatsAppButton";
+import { useGlobalState } from "../context/GlobalStateContext";
 
 export default function Home() {
+  const { siteContent } = useGlobalState();
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [countdown, setCountdown] = useState({
     days: 19,
@@ -96,13 +98,13 @@ export default function Home() {
     { name: "For Handicapped", count: "CANTER", icon: "♿" }
   ];
 
-  // Images for the slider
-  const sliderImages = [
+  // Images for the slider are now dynamic from global siteContent
+  const sliderImages = siteContent?.heroBanners || [
     "/8.jpg",
-    "/9.jpg", 
+    "/9.jpg",
     "/10.jpg",
     "/11.jpg",
-    "/12.jpg"
+    "/12.jpg",
   ];
 
   const testimonials = [
@@ -178,47 +180,19 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Three Image Grids Section */}
+      {/* Four Ad Image Grids Section (replaces previous flash sale 3-grid) */}
       <section className="py-8 bg-white">
         <div className="container mx-auto px-4">
-          <div className="flex justify-center items-center space-x-6">
-            {/* Left Section */}
-            <div className="relative w-80 h-64 bg-gray-200 rounded-lg overflow-hidden shadow-lg">
-              <Image
-                src="/3.jpg"
-                alt="Left Grid"
-                fill
-                className="object-cover"
-              />
-            </div>
-
-            {/* Middle Section: Flash Sale countdown */}
-            <div className="relative w-[520px] h-64  rounded-lg overflow-hidden ">
-              <div className="absolute inset-0 bg-gray-100"></div>
-              <Image
-                src="/1.jpg"
-                alt="Flash Sale Background"
-                fill
-                className="object-cover opacity-60"
-              />
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-24 bg-gray-00 backdrop-blur-sm border-2 border-white-500 text-white-600 flex flex-col justify-center items-center text-center p-3 rounded-lg shadow-lg">
-                <div className="text-2xl font-bold">FLASH SALE</div>
-                <div className="text-3xl font-bold mt-1">
-                  {countdown.days.toString().padStart(2, '0')}:{countdown.hours.toString().padStart(2, '0')}:{countdown.minutes.toString().padStart(2, '0')}:{countdown.seconds.toString().padStart(2, '0')}
-                </div>
-                <div className="text-sm">DAYS HRS MINS SECS</div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {(siteContent?.adGridImages || []).slice(0, 4).map((src, idx) => (
+              <div key={idx} className="relative w-full h-64 bg-gray-200 rounded-lg overflow-hidden shadow-lg">
+                {src ? (
+                  <Image src={src} alt={`Ad Grid ${idx + 1}`} fill className="object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400">Ad Image</div>
+                )}
               </div>
-            </div>
-
-            {/* Right Section */}
-            <div className="relative w-80 h-64 bg-gray-200 rounded-lg overflow-hidden shadow-lg">
-              <Image
-                src="/3.jpg"
-                alt="Right Grid"
-                fill
-                className="object-cover"
-              />
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -262,7 +236,7 @@ export default function Home() {
               <h3 className="text-lg font-bold mb-3 text-black">Other Categories</h3>
               <div className="space-y-1">
                 {otherCategories.map((category, index) => (
-                  <div key={index} className="flex justify-between items-center p-2 hover:bg-gray-50 rounded cursor-pointer">
+                  <div key={index} className="flex justify_between items-center p-2 hover:bg-gray-50 rounded cursor-pointer">
                     <div className="flex items-center">
                       <span className="mr-2 text-sm">{category.icon}</span>
                       <span className="font-medium text-sm text-black">{category.name}</span>
@@ -270,6 +244,17 @@ export default function Home() {
                     <span className="text-gray-500 text-xs">({category.count})</span>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Left Sidebar Vertical Ad (dynamic) */}
+            <div className="bg-white rounded-lg shadow-md p-3">
+              <div className="relative w-full h-[520px] rounded overflow-hidden bg-gray-50">
+                {siteContent?.leftSidebarAdImage ? (
+                  <Image src={siteContent.leftSidebarAdImage} alt="Sidebar Ad" fill className="object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">Sidebar Ad Image</div>
+                )}
               </div>
             </div>
           </div>

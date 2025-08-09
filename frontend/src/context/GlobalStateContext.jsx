@@ -112,18 +112,33 @@ export const GlobalStateProvider = ({ children }) => {
     autoParts: []
   });
 
-  // Load inventory from localStorage on mount
+  // New: Site content for homepage banners and ads
+  const [siteContent, setSiteContent] = useState({
+    heroBanners: ["/8.jpg", "/9.jpg", "/10.jpg", "/11.jpg", "/12.jpg"],
+    adGridImages: ["/3.jpg", "/3.jpg", "/3.jpg", "/3.jpg"],
+    leftSidebarAdImage: "/1.jpg"
+  });
+
+  // Load inventory and siteContent from localStorage on mount
   useEffect(() => {
     const savedInventory = localStorage.getItem('inventory');
     if (savedInventory) {
       setInventory(JSON.parse(savedInventory));
     }
+    const savedSiteContent = localStorage.getItem('siteContent');
+    if (savedSiteContent) {
+      setSiteContent(JSON.parse(savedSiteContent));
+    }
   }, []);
 
-  // Save inventory to localStorage whenever it changes
+  // Save inventory and siteContent to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('inventory', JSON.stringify(inventory));
   }, [inventory]);
+
+  useEffect(() => {
+    localStorage.setItem('siteContent', JSON.stringify(siteContent));
+  }, [siteContent]);
 
   const addProduct = (category, product) => {
     const newId = Math.max(...inventory[category].map(item => item.id), 0) + 1;
@@ -151,11 +166,28 @@ export const GlobalStateProvider = ({ children }) => {
     }));
   };
 
+  // New: Updaters for site content
+  const updateHeroBanners = (images) => {
+    setSiteContent(prev => ({ ...prev, heroBanners: images }));
+  };
+
+  const updateAdGridImages = (images) => {
+    setSiteContent(prev => ({ ...prev, adGridImages: images }));
+  };
+
+  const updateLeftSidebarAdImage = (image) => {
+    setSiteContent(prev => ({ ...prev, leftSidebarAdImage: image }));
+  };
+
   const value = {
     inventory,
     addProduct,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    siteContent,
+    updateHeroBanners,
+    updateAdGridImages,
+    updateLeftSidebarAdImage
   };
 
   return (

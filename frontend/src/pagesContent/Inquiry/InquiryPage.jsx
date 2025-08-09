@@ -146,7 +146,7 @@ const InquiryPage = () => {
                         value={formData.name}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black placeholder-black"
                         placeholder="Enter your full name"
                       />
                     </div>
@@ -160,7 +160,7 @@ const InquiryPage = () => {
                         value={formData.email}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black placeholder-black"
                         placeholder="Enter your email address"
                       />
                     </div>
@@ -174,7 +174,7 @@ const InquiryPage = () => {
                         value={formData.tel}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black placeholder-black"
                         placeholder="Enter your phone number"
                       />
                     </div>
@@ -188,7 +188,7 @@ const InquiryPage = () => {
                         value={formData.address}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black placeholder-black"
                         placeholder="Enter your address"
                       />
                     </div>
@@ -210,7 +210,7 @@ const InquiryPage = () => {
                         value={formData.destinationCountry}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black"
                       >
                         <option value="">Select-Destination Country</option>
                         {countries.map((country, index) => (
@@ -227,7 +227,7 @@ const InquiryPage = () => {
                         value={formData.destinationPort}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black"
                       >
                         <option value="">Select-Destination Port</option>
                         <option value="Los Angeles">Los Angeles</option>
@@ -269,7 +269,7 @@ const InquiryPage = () => {
                         name="make"
                         value={formData.make}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black"
                       >
                         <option value="">Make</option>
                         {makes.map((make, index) => (
@@ -285,7 +285,7 @@ const InquiryPage = () => {
                         name="bodyType"
                         value={formData.bodyType}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black"
                       >
                         <option value="">Make Body Type</option>
                         {bodyTypes.map((type, index) => (
@@ -301,7 +301,7 @@ const InquiryPage = () => {
                         name="transmission"
                         value={formData.transmission}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black"
                       >
                         <option value="">Transmission</option>
                         {transmissions.map((trans, index) => (
@@ -317,7 +317,7 @@ const InquiryPage = () => {
                         name="steering"
                         value={formData.steering}
                         onChange={handleInputChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black"
                       >
                         <option value="">Steering</option>
                         {steeringOptions.map((option, index) => (
@@ -340,7 +340,7 @@ const InquiryPage = () => {
                         onChange={handleInputChange}
                         min="1990"
                         max="2024"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black placeholder-black"
                         placeholder="From"
                       />
                     </div>
@@ -355,7 +355,7 @@ const InquiryPage = () => {
                         onChange={handleInputChange}
                         min="1990"
                         max="2024"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black placeholder-black"
                         placeholder="To"
                       />
                     </div>
@@ -373,7 +373,7 @@ const InquiryPage = () => {
                         value={formData.priceFrom}
                         onChange={handleInputChange}
                         min="0"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black placeholder-black"
                         placeholder="From"
                       />
                     </div>
@@ -387,7 +387,7 @@ const InquiryPage = () => {
                         value={formData.priceTo}
                         onChange={handleInputChange}
                         min="0"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black placeholder-black"
                         placeholder="To"
                       />
                     </div>
@@ -405,7 +405,7 @@ const InquiryPage = () => {
                         value={formData.mileageFrom}
                         onChange={handleInputChange}
                         min="0"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black placeholder-black"
                         placeholder="From"
                       />
                     </div>
@@ -419,7 +419,7 @@ const InquiryPage = () => {
                         value={formData.mileageTo}
                         onChange={handleInputChange}
                         min="0"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black placeholder-black"
                         placeholder="To"
                       />
                     </div>
@@ -437,7 +437,7 @@ const InquiryPage = () => {
                     onChange={handleInputChange}
                     required
                     rows="6"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 text-black placeholder-black"
                     placeholder="Please provide any additional details about your inquiry, specific requirements, or questions you may have..."
                   ></textarea>
                 </div>
