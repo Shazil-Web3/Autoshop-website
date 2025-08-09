@@ -1,11 +1,11 @@
 "use client";
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
 import { useGlobalState } from '../../context/GlobalStateContext';
 
-const InventoryPage = () => {
+const InventoryPageContent = () => {
   const { inventory } = useGlobalState();
   const searchParams = useSearchParams();
   const [openSections, setOpenSections] = useState({
@@ -169,7 +169,7 @@ const InventoryPage = () => {
                 <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Engine code</td>
                 <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium break-words whitespace-normal">-</td>
                 <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Color</td>
-                <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium break-words whitespace-normal">{vehicle.color}</td>
+                <td className="border border-gray-200 p-2 text-sm bg_white text-gray-700 font-medium break-words whitespace-normal">{vehicle.color}</td>
                 <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Drive</td>
                 <td className="border border-gray-200 p-2 text-sm bg-white text-gray-700 font-medium break-words whitespace-normal">{vehicle.drive || "ASK"}</td>
                 <td className="border border-gray-200 p-2 text-sm bg-gray-100 text-gray-600 font-normal">Doors</td>
@@ -252,7 +252,7 @@ const InventoryPage = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx_auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
           {/* Stock Cars Section */}
           <div ref={stockCarsRef}>
@@ -331,4 +331,10 @@ const InventoryPage = () => {
   );
 };
 
-export default InventoryPage; 
+export default function InventoryPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 p-8 text-black">Loading inventory...</div>}>
+      <InventoryPageContent />
+    </Suspense>
+  );
+} 
